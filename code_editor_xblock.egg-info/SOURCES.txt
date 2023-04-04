@@ -1,0 +1,13 @@
+setup.py
+code_editor/__init__.py
+code_editor/code_editor.py
+code_editor/static/README.txt
+code_editor/static/css/code_editor.css
+code_editor/static/html/code_editor.html
+code_editor/static/js/src/code_editor.js
+code_editor_xblock.egg-info/PKG-INFO
+code_editor_xblock.egg-info/SOURCES.txt
+code_editor_xblock.egg-info/dependency_links.txt
+code_editor_xblock.egg-info/entry_points.txt
+code_editor_xblock.egg-info/requires.txt
+code_editor_xblock.egg-info/top_level.txt

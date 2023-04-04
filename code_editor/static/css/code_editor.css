@@ -1,0 +1,9 @@
+/* CSS for CodeEditorXBlock */
+
+.code_editor_block .count {
+    font-weight: bold;
+}
+
+.code_editor_block p {
+    cursor: pointer;
+}
