@@ -1,5 +1,100 @@
-<div class="code_editor_block">
-<p>CodeEditorXBlock: count is now
-    <span class='count'>{self.count}</span> (click me to increment).
-</p>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<div>
+    <div class="code-container">
+        <div class="code-body">
+            <div class="code-editor-con">
+                <form class="code-editor-form mt-6">
+                    <div class="form-group col-md-12 row" style="margin-bottom: 5px;">
+                        <div class="col-md-3">
+                            <label style="margin-right: 5px;font-size: 14px;">Language Type: </label>
+                            <select id="languageTypeChange" class="editorLable" name="language" style="width:8Vw ;">
+                                    <option style="" value ="BACKEND">Back End</option>
+                                    <option style="" value ="DATABASE">Database</option>
+                                    <option style="" value ="DEVOPS">DevOps</option>
+                                    <option style="" value ="FRONTEND">Front End</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label style="margin-right: 5px;font-size: 14px;">Language: </label>
+                            <select id="languageChange" class="editorLable" name="language" style="width:8Vw ;">
+                                    <!-- <option style=" color:#3277a8e8;" value =""></option>              -->
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label style="margin-right: 5px;font-size: 14px;">Editor Theme: </label>
+                            <select id="themeChange" class="editorLable" name="editorTheme" style="width:8Vw;">
+                                <option value ="monokai">Dark Mode</option>
+                                <option value ="sqlserver">Light Mode</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label style="margin-right: 5px;font-size: 14px;">Font Size: </label>
+                            <select id="fontChange" class="editorLable" name="editorTheme" style="width:8Vw;">
+                                <option value ="12">Small</option>
+                                <option selected value ="14">Medium</option>
+                                <option value ="18">Large</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- <div data-intro="Timer" data-position="left">
+                        {{currentTime}}
+                    </div> -->
+                </form>
+
+
+                <div class="code-editor" data-intro="Code console" data-position="left" style="margin-bottom:10px;position:relative;">
+                    <div  id="editor">
+                    </div>
+                </div>
+                <div class="code-footer">
+                    <input class="code_run_ele run_default" data-intro="Enter custom input here" data-position="left" type="text" placeholder="Input"  style="font-size: 0.8em;"/>
+
+                    <button id="runBtn" data-intro="Click here to Run custom inputs" data-position="left" class="code_run_ele run_default run_database btn btn-sm btn-info" style="margin-right: 5px;">
+                        <i class="fa fa-play" aria-hidden="true" style="margin-right: 5px;"></i>Run
+                    </button>
+
+                    <button id="previewBtn" data-intro="Click here to preview" data-position="left" class="code_run_ele run_frontend btn btn-sm btn-info" style="margin-right: 5px;">
+                        <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;"></i>Preview
+                    </button>
+
+                    <button id="saveBtn" style="float:right;margin-right:10px;margin-left:50px;color: #fff; background-color: #28a745; border-color: #28a745; box-shadow: inset 0 1px 0 0 #28a745; background-image: unset; font-weight: 400;" data-disable-interaction="true" data-position="left" data-position="left" data-intro="Click here to submit the code" title="Once submitted, you cannot change." class="btn btn-sm btn-success">Save</button>
+
+                    <button id="updateBtn" style="float:right;margin-left:50px;color: #fff; background-color:#eb931a; border-color: #eb931a; box-shadow: inset 0 1px 0 0 #eb931a; background-image: unset; font-weight: 400;" data-disable-interaction="true" data-position="left" data-position="left" data-intro="Click here to save the code" " class="btn btn-sm btn-primary">Update</button>
+
+                    <button id="getBtn" data-intro="Click here to Run custom inputs" data-position="left" class="btn btn-sm btn-primary" style="float:right;margin-left:20px; color: #fff; background-color:#0175B4; border-color: #0175B4; box-shadow: inset 0 1px 0 0 #0175B4; background-image: unset; font-weight: 400;">Get Code
+                    </button>
+
+                    <input class="snippet_id" data-intro="Enter custom input here" data-position="left" type="text" placeholder="Snippet ID"  style="font-size: 0.8em;float: right;"/>
+
+                    <span>Snippet ID : <span id="snippetid"></span></span>
+
+                    <span id="savingMsg" style="margin-left:2%;display: none;color: darkgray;">Saving....</span>
+                    <span id="savedMsg"  style="margin-left:2%; display: none;color:#28a745">Code Saved successfully..</span>
+                    <span id="submittingMsg" style="margin-left:2%;display: none;color: darkgray;">Updating....</span>
+                    <span id="submittedMsg"  style="margin-left:2%; display: none;color:#eb931a">Code Updated successfully..</span>
+                </div>
+                <div id="toggleTerminal" class="code_run_ele run_default run_database btn-gradient">
+                    <span>Output Window</span>
+                    <i class="fa fa-angle-down" id="hide-show-icon" aria-hidden="true"></i>
+                </div>
+                <div class="code-testcase code_run_ele run_default run_database">
+                    <div class="output-terminal code_run_ele run_default run_database" style="white-space: pre-line" data-intro="Output terminal" data-position="left">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class='outline_element' style="position: fixed;width: 100%;height: 100%;top:0;left:0;display:none;z-index: 1000000;background-color: white;">
+    <button id="close-preview" class="fullscreenbutton" title="Close Preview">
+        <i class="fa fa-times" aria-hidden="true" style="margin-right: 5px;font-size: 16px;font-weight: 400;"></i>
+    </button>
+    <!-- <center style="width: 100%;position: absolute;">
+        <span style="font-size:30px;color:rgb(201,201,201);margin-top: 15%;">This is the HTML Preview Window.<br/> Click on the <i class="fa fa-times" aria-hidden="true"></i> icon to exit.</span>
+    </center> -->
+
+    <iframe id="result-Window" src="about:blank" style="width: 100%;height: 100%;"></iframe>
 </div>
