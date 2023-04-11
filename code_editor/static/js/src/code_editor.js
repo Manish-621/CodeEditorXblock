@@ -1,20 +1,20 @@
-function CodeEditorXBlock(element,runtime){
+function CodeEditorXBlock(runtime, element, init_args){
 /* Javascript for CodeEditorXBlock. */
         // Retrieve Elements
-        var saveHandlerUrl=runtime.handlerUrl(element,'save_or_update_snippet_code');
+        var saveHandlerUrl= runtime.handlerUrl(element,'save_or_update_snippet_code');
         var getHandlerUrl=runtime.handlerUrl(element,'get_snippet_code');
-        
+        var getCodeUrl=runtime.handlerUrl(element,'get_code_by_questionID');
+        var runCodeUrl=runtime.handlerUrl(element,'run_snippet');
         
         let Code_Editor = new function(){
-            const ACE_URL1 = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js",
-                ACE_URL2 = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ext-language_tools.min.js";
+            const ACE_URL1 = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.16.0/ace.js",
+                ACE_URL2 = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.16.0/ext-language_tools.min.js";
             const LanguageTypes = {
-                'BACKEND': $('#backend',element).val(),
-                'DATABASE': $('#database',element).val(),
-                'DEVOPS': $('#devops',element).val(),
-                'FRONTEND': $('#frontend',element).val()
+                'BACKEND': JSON.parse(init_args.BACKEND),
+                'DATABASE':  JSON.parse(init_args.DATABASE),
+                'DEVOPS':  JSON.parse(init_args.DEVOPS),
+                'FRONTEND':  JSON.parse(init_args.FRONTEND)
             }
-
             let _Loader = {
 
                 $loading : $('.loader').show(),
@@ -34,8 +34,8 @@ function CodeEditorXBlock(element,runtime){
                 editor : null,
                 last_Selected_Language:0, current_Selected_Language:0,
                 _setUpDevOpsLangs : function(){
-                    let DevopsLanguageModes= ["https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-groovy.min.js","https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-yaml.min.js",
-                                            "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-powershell.min.js","https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-sh.min.js"]
+                    let DevopsLanguageModes= ["https://cdnjs.cloudflare.com/ajax/libs/ace/1.16.0/mode-groovy.min.js","https://cdnjs.cloudflare.com/ajax/libs/ace/1.16.0/mode-yaml.min.js",
+                                            "https://cdnjs.cloudflare.com/ajax/libs/ace/1.16.0/mode-powershell.min.js","https://cdnjs.cloudflare.com/ajax/libs/ace/1.16.0/mode-sh.min.js"]
 
                     DevopsLanguageModes.forEach((url)=> {
                         jQuery.loadScript = function (url, callback) {
@@ -51,7 +51,7 @@ function CodeEditorXBlock(element,runtime){
 
                 _set_Editor : function(){
                     let questionlist=[];
-                    $('#themeChange',element).val('monokai');
+                    $('#themeChange' ).val('monokai');
                     _Editor_Activity.editor.setTheme("ace/theme/"+'monokai');
                     _Editor_Activity.editor.setOptions({
                         fontSize: "14px",
@@ -59,13 +59,12 @@ function CodeEditorXBlock(element,runtime){
                         enableSnippets: true,
                         enableLiveAutocompletion: true
                     });
-                    $('.output-terminal',element).html("<div>Output Window<div>");
+                    $('.output-terminal' ).html("<div>Output Window<div>");
                 },
 
                 _update_Settings : function(codeArray,lang_type){
                     _Editor_Activity.last_Selected_Language=0;
                     _Editor_Activity.current_Selected_Language=0;
-
                     // Re-configiure code editor
                     _Editor_Activity.editor.setShowPrintMargin(false);
                     _Editor_Activity.editor.session.setMode("ace/mode/"+codeArray[0].syntaxhighlightName);
@@ -73,37 +72,37 @@ function CodeEditorXBlock(element,runtime){
                     _Editor_Activity.editor.renderer.setScrollMargin(10, 10);
 
                     // Applying code run configurations
-                    $('.code_run_ele',element).hide();
-                    $run_elements = $('.code_run_ele.run_'+lang_type.toLowerCase(),element)
+                    $('.code_run_ele' ).hide();
+                    $run_elements = $('.code_run_ele.run_'+lang_type.toLowerCase() )
                         if($run_elements.length > 0){
                             $run_elements.show();
                         }
                         else{
-                            $('.code_run_ele.run_default',element).show();
+                            $('.code_run_ele.run_default' ).show();
                         }
                 },
 
                 _init : function(){
                     _Editor_Activity.editor = ace.edit("editor");
                     _Editor_Activity._set_Editor();
-                    $('#themeChange',element).on('change', function() {
+                    $('#themeChange' ).on('change', function() {
                         _Editor_Activity.editor.setTheme("ace/theme/"+this.value);
                     });
 
-                    $('#languageTypeChange',element).on('change', function(){
+                    $('#languageTypeChange' ).on('change', function(){
                         _Editor_Ops._changeEditor(this.value);
                     });
-                    $('#languageTypeChange',element).trigger('change');
+                    $('#languageTypeChange' ).trigger('change');
 
-                    $('#languageChange',element).on('change', function() {
+                    $('#languageChange' ).on('change', function() {
                         var code = _Editor_Activity.editor.getValue();
                         _Editor_Activity.last_Selected_Language=_Editor_Activity.current_Selected_Language;
                         codeArray[_Editor_Activity.last_Selected_Language].default_code=code;
                         _Editor_Activity.editor.setValue(codeArray[this.value].default_code);
-                        _Editor_Activity.editor.session.setMode("ace/mode/"+codeArray[this.value].syntaxhighlightName);
+                        _Editor_Activity.editor.session.setMode("ace/mode/javascript");
                         _Editor_Activity.current_Selected_Language=this.value;
                     });
-                    $('#fontChange',element).on('change', function() {
+                    $('#fontChange' ).on('change', function() {
                         _Editor_Activity.editor.setOptions({
                             fontSize: this.value.toString()+'px',
                             enableBasicAutocompletion: true,
@@ -118,110 +117,111 @@ function CodeEditorXBlock(element,runtime){
             let _Editor_Ops = {
 
                 _saveCode : function(isUpdate = false,url){
-                    let $button = $('#saveBtn',element),
-                    $requestMsg = $('#savingMsg',element),
-                    $responseMsg = $('#savedMsg',element)
+                    let $button = $('#saveBtn' ),
+                    $requestMsg = $('#savingMsg' ),
+                    $responseMsg = $('#savedMsg' )
                     if(isUpdate){
-                        if($('.snippet_id',element).val().length == 0){
+                        if($('.snippet_id' ).val().length == 0){
                             notification_manager.display_Notification('Please Enter a Snippet ID to update');
                             throw new Error("No Snippet ID to update");
                         }
-                        $button = $('#updateBtn',element);
-                        $requestMsg = $('#submittingMsg',element);
-                        $responseMsg = $('#submittedMsg',element);
+                        $button = $('#updateBtn' );
+                        $requestMsg = $('#submittingMsg' );
+                        $responseMsg = $('#submittedMsg' );
                     }
 
-                    $('#saveBtn',element).prop('disabled', true);
-                    $('#updateBtn',element).prop('disabled', true);
+                    $('#saveBtn' ).prop('disabled', true);
+                    $('#updateBtn' ).prop('disabled', true);
                     $requestMsg.css('display','inline');
                     $.post(url, {
-                        language : codeArray[$("#languageChange :selected",element).val()].language,
-                        filename : codeArray[$("#languageChange :selected",element).val()].filename,
+                        language : codeArray[$("#languageChange :selected" ).val()].language,
+                        filename : codeArray[$("#languageChange :selected" ).val()].filename,
                         content : _Editor_Activity.editor.getValue(),
-                        snippet_id : $('.snippet_id',element).val(),
+                        snippet_id : $('.snippet_id' ).val(),
                         is_Update : isUpdate
                     },
                     function(data, status) {
                         if(status == "success"){
-                            $('#snippetid',element).text(data['snippet_id']);
+                            $('#snippetid' ).text(data['snippet_id']);
                             $responseMsg.css('display','inline');
                             $requestMsg.css('display','none');
                             setTimeout(() => {
                                 $responseMsg.css('display','none');
                             }, 3000);
-                            $('#saveBtn',element).prop('disabled', false);
-                            $('#updateBtn',element).prop('disabled', false);
+                            $('#saveBtn' ).prop('disabled', false);
+                            $('#updateBtn' ).prop('disabled', false);
                         }
                     }).fail(function() {
-                        $('.output-terminal',element).html("<div>Got unexpected response<div>");
-                        $('#saveBtn',element).prop('disabled', false);
-                        $('#updateBtn',element).prop('disabled', false);
+                        $('.output-terminal' ).html("<div>Got unexpected response<div>");
+                        $('#saveBtn' ).prop('disabled', false);
+                        $('#updateBtn' ).prop('disabled', false);
                         $requestMsg.css('display','none');
                     });
 
                 },
 
-                _runCode : function(){
+                _runCode : function(url){
                     $(this).prop('disabled', true);
-                    $('.output-terminal',element).empty();
-                    $('.output-terminal',element).html("<div>Running.....<div>")
-                    var str = $('.code-footer input',element)[0].value;
+                    $('.output-terminal' ).empty();
+                    $('.output-terminal' ).html("<div>Running.....<div>")
+                    var str = $('.code-footer input' )[0].value;
                     var input= str.replace(",", "\n");
-                    $.post("/run_snippet", {
-                        name: codeArray[$("#languageChange :selected",element).val()].filename,
+                    $.post(url, {
+                        name: codeArray[$("#languageChange :selected" ).val()].filename,
+                        result_Snippet: "",
                         content: _Editor_Activity.editor.getValue(),
-                        language: codeArray[$("#languageChange :selected",element).val()].language,
+                        language: codeArray[$("#languageChange :selected" ).val()].language,
                         stdin:input,
                         allow_main : true
                     },
+                  
                     function(data, status) {
-                        $('#runBtn',element).prop('disabled', false);
+
+                        $('#runBtn' ).prop('disabled', false);
                         var jsonRes=data;
                         if(!data) {
-                            $('.output-terminal',element).html("<div>Got unexpected response<div>")
+                            $('.output-terminal' ).html("<div>Got unexpected response<div>")
                         }
                         else if(jsonRes.ExamType=="DATABASE") {
                             if(!jsonRes.stderr){
                                 try{
-                                    $('.output-terminal',element).html('<table class="result_table" style="white-space:nowrap;">'+data.stdout+'</table>');
+                                    $('.output-terminal' ).html('<table class="result_table" style="white-space:nowrap;">'+data.stdout+'</table>');
                                 }
                                 catch(e){
-                                    $('.output-terminal',element).html(data.stdout);
+                                    $('.output-terminal' ).html(data.stdout);
                                 }
                             }
                             else
-                                $('.output-terminal',element).html("<div>"+jsonRes.stderr+"<div>")
+                                $('.output-terminal' ).html("<div>"+jsonRes.stderr+"<div>")
                             }
 
                         else{
                             if(!jsonRes.stderr)
-                                $('.output-terminal',element).html("<div>"+jsonRes.stdout+"<div>")
+                                $('.output-terminal' ).html("<div>"+jsonRes.stdout+"<div>")
                             else
-                                $('.output-terminal',element).html("<div>"+jsonRes.stderr+"<div>")
+                                $('.output-terminal' ).html("<div>"+jsonRes.stderr+"<div>")
                         }
                     }).fail(function() {
-                        $('#runBtn',element).prop('disabled', false);
-                        $('.output-terminal',element).html("<div>Got unexpected response<div>");
+                        $('#runBtn' ).prop('disabled', false);
+                        $('.output-terminal' ).html("<div>Got unexpected response<div>");
                     });
                 },
 
                 _previewCode : function(){
-                    var doc = $('#result-Window',element)[0].contentWindow.document;
+                    var doc = $('#result-Window' )[0].contentWindow.document;
                     doc.open();
                     doc.write(_Editor_Activity.editor.getValue());
                     doc.close();
-                    $('body',element).css('overflow','hidden');
-                    $('.outline_element',element).show();
+                    $('body' ).css('overflow','hidden');
+                    $('.outline_element' ).show();
                 },
 
                 _changeEditor : function(languageType, selected_language = null, code = null){
                     _Loader._show();
+                    
                     let coding_Languages = LanguageTypes[languageType];
-                    $("#languageChange option",element).each(function(){
-                        this.remove();
-                    });
-                    $('.code-footer input',element).val('');
-                    $('.output-terminal',element).html('');
+                    $('.code-footer input' ).val('');
+                    $('.output-terminal' ).html('');
                     if(selected_language && selected_language.length>0){
                         let  index = coding_Languages.map(function(e) { return e.language; }).indexOf(selected_language);
                         if (index != 0 || index != null ){
@@ -231,9 +231,10 @@ function CodeEditorXBlock(element,runtime){
                             coding_Languages[0].default_code = code;
                         }
                     }
-                    coding_Languages.forEach((language , i)=>{
-                            $("#languageChange",element).append($('<option></option>').val(i).html(language['displayname']));
-                        });
+                    
+                           for( var language in coding_Languages){
+                            $("#languageChange" ).append($('<option></option>').val(language).html(coding_Languages[language].language));
+                           }
 
                     codeArray=coding_Languages;
                     _Editor_Activity._update_Settings(codeArray, languageType);
@@ -241,81 +242,80 @@ function CodeEditorXBlock(element,runtime){
                 },
 
                 _getSnippet : function(url){
-                    if($('.snippet_id',element).val().length == 0){
+                    if($('.snippet_id' ).val().length == 0){
                         notification_manager.display_Notification('Please Enter a Snippet ID to fetch code');
                         throw new Error("No Snippet ID to fetch code");
                     }
-                    let snippet_id = $('.snippet_id',element).val();
+                    let snippet_id = $('.snippet_id' ).val();
                     $.get(url+snippet_id, function(data,status){
                         if(status == "success"){
-                            console.log(data);
-                            $('#snippetid',element).text(snippet_id);
+                            $('#snippetid' ).text(snippet_id);
                             let languageType = '';
                             if(['c', 'cpp', 'java', 'python', 'php', 'javascript'].includes(data['language'])){
-                                $('#languageTypeChange',element).val('BACKEND');
+                                $('#languageTypeChange' ).val('BACKEND');
                                 languageType = 'BACKEND';
                             }
                             else if(['mssql', 'mysql', 'oracle'].includes(data['language'])){
-                                $('#languageTypeChange',element).val('DATABASE');
+                                $('#languageTypeChange' ).val('DATABASE');
                                 languageType = 'DATABASE';
                             }
                             else if(['html', 'javascript', 'css'].includes(data['language'])){
-                                $('#languageTypeChange',element).val('FRONTEND');
+                                $('#languageTypeChange' ).val('FRONTEND');
                                 languageType = 'FRONTEND';
                             }
                             else{
-                                $('#languageTypeChange',element).val('DEVOPS');
+                                $('#languageTypeChange' ).val('DEVOPS');
                                 languageType = 'DEVOPS';
                             }
-                            $('#languageTypeChange',element).trigger('change');
+                            $('#languageTypeChange' ).trigger('change');
                             _Editor_Ops._changeEditor(languageType, data['language'], data['code']);
                         }
                     });
                 },
 
                 _init : function(){
-                    $("#runBtn",element).click(function(){
-                        _Editor_Ops._runCode();
+                    $("#runBtn" ).click(function(){
+                        _Editor_Ops._runCode(runCodeUrl);
                     });
-                    $("#previewBtn",element).click(function(){
+                    $("#previewBtn" ).click(function(){
                         _Editor_Ops._previewCode();
                     });
 
-                    $('#getBtn',element).click(function(){
+                    $('#getBtn' ).click(function(){
                         _Editor_Ops._getSnippet(getHandlerUrl);
                     });
 
-                    $('#close-preview',element).click(function(){
-                        $('.outline_element',element).hide();
-                        if($('.fullscreenFrame',element).length == 0){
-                            $('body',element).css('overflow','visible');
+                    $('#close-preview' ).click(function(){
+                        $('.outline_element' ).hide();
+                        if($('.fullscreenFrame' ).length == 0){
+                            $('body' ).css('overflow','visible');
                         }
                     });
-                    $("#saveBtn",element).click(function(){
+                    $("#saveBtn" ).click(function(){
                         _Editor_Ops._saveCode(isUpdate=false,saveHandlerUrl);
                     });
 
-                    $("#toggleHint",element).click(function(){
+                    $("#toggleHint" ).click(function(){
                         let label = 'Hide';
-                        if($('.devops_hint',element).toggle().css('display') == "none")
+                        if($('.devops_hint' ).toggle().css('display') == "none")
                             label = 'Show';
                         $(this).text(label+' Hint');
                     });
 
-                    $("#toggleAnswer",element).click(function(){
+                    $("#toggleAnswer" ).click(function(){
                         let label = 'Hide';
-                        if($('.devops_answer',element).toggle().css('display') == "none")
+                        if($('.devops_answer' ).toggle().css('display') == "none")
                             label = 'Show';
                         $(this).text(label+' Answer');
                     });
 
-                    $("#toggleTerminal",element).click(function(){
-                        $('.code-testcase',element).toggle(5, ()=>_Editor_Activity.editor.resize());
-                        $('#hide-show-icon',element).toggleClass('fa-angle-up');
-                        $('#hide-show-icon',element).toggleClass('fa-angle-down');
+                    $("#toggleTerminal" ).click(function(){
+                        $('.code-testcase' ).toggle(5, ()=>_Editor_Activity.editor.resize());
+                        $('#hide-show-icon' ).toggleClass('fa-angle-up');
+                        $('#hide-show-icon' ).toggleClass('fa-angle-down');
                     })
 
-                    $("#updateBtn",element).click(function(){
+                    $("#updateBtn" ).click(function(){
                         let message='Are you sure you want to update ?';
                         let option2=new Notification_Modal_Option(optionTitle='No',functionDelegate= null);
                         let option1=new Notification_Modal_Option(optionTitle='Yes',functionDelegate= function(hideModal = null){
@@ -325,7 +325,7 @@ function CodeEditorXBlock(element,runtime){
                         notification_manager.display_Decision(message,1,true,option1,option2,'OptionDialog');
                     });
 
-                    $('.top-nav-coding',element).on('click','li.activate_links',function(e)
+                    $('.top-nav-coding' ).on('click','li.activate_links',function(e)
                     {
                         _Editor_Ops.clicked_Question = this;
                         _Editor_Ops._saveAndContinue(_Editor_Ops._fetchNextQuestion);

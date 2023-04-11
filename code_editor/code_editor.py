@@ -61,12 +61,11 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         help="The coding question",
         enforce_type=True,
     )
-    language_type=String(
+    language_type=Dict(
         display_name=("Problem Area"),
         help="Backend/Frontend/Database/Docker",
         scope=Scope.settings,
         values=[(tag.name, tag.value) for tag in CodingLanguagesType],
-        default="Constants.Backend",
         enforce_type= True,
     )
     max_score=Integer(
@@ -165,15 +164,15 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
     )
 
     
-    def request_save(cls, question_id):
-        results = cls.objects.filter(question_id=question_id,is_submit=True)
+    def request_save(self, question_id):
+        results = self.objects.filter(question_id=question_id,is_submit=True)
         if results.exists():
             raise ('Response already submitted. Cannot Alter.')
         return False
 
     
-    def save_result(cls, question_id, snippet_id, is_submit, content, language):
-        results = cls.objects.filter(question_id=question_id)
+    def save_result(self, question_id, snippet_id, is_submit, content, language):
+        results = self.objects.filter(question_id=question_id)
         if results.exists():
             result = results.first()
             if result.is_submit:
@@ -227,11 +226,22 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         The primary view of the CodeEditorXBlock, shown to students
         when viewing courses.
         """
-        html = loader.render_django_template("static/html/code_editor.html")
+        backend = json.dumps(_languages.BACKEND)
+        database = json.dumps(_languages.DATABASE)
+        devops = json.dumps(_languages.DEVOPS)
+        frontend = json.dumps(_languages.FRONTEND)
+        context = {
+            'BACKEND':backend,
+            'DATABASE':database,
+            'DEVOPS':devops,
+            'FRONTEND':frontend
+        }
+        html = loader.render_django_template("static/html/code_editor.html",context)
         frag = Fragment(html)
-        frag.add_css("static/css/code_editor.css")
-        frag.add_javascript("static/js/src/code_editor.js")
-        frag.initialize_js('CodeEditorXBlock')
+        css = loader.render_django_template('static/css/code_editor.css')
+        frag.add_css(css)
+        frag.add_javascript(loader.load_unicode("static/js/src/code_editor.js"))
+        frag.initialize_js('CodeEditorXBlock',context)
         return frag
 
     # TO-DO: change this handler to perform your own actions.  You may need more
@@ -477,28 +487,6 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             response.save()
 
         return JsonResponse({'success':True})
-
-
-    # APIs for snippet manager
-    @login_required
-    def get_snippet_manager(request):
-        if not (request.user.is_superuser or request.user.is_staff):
-            raise 'Unauthorized Request'
-
-        #import ipdb;ipdb.set_trace()
-        backend = json.dumps(_languages.BACKEND)
-        database = json.dumps(_languages.DATABASE)
-        devops = json.dumps(_languages.DEVOPS)
-        frontend = json.dumps(_languages.FRONTEND)
-        context = {
-            'BACKEND':backend,
-            'DATABASE':database,
-            'DEVOPS':devops,
-            'FRONTEND':frontend
-        }
-        html = loader.render_django_template("static/html/code_editor.html")
-        frag = Fragment(html)
-        return frag
 
     @login_required
     @XBlock.json_handler
