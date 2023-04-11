@@ -7,11 +7,9 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from xblock.core import XBlock
 from xblock.fields import Boolean, Dict, Float, Integer, Scope, String
-from .utils import (
-    Constants, SHOWANSWER, DummyTranslationService, FeedbackMessage,
-    FeedbackMessages, ItemStats, StateMigration, _clean_data, _, sanitize_html)
 from .utils import get_code_by_snippet, save_or_update_code, run_backend_code, run_sql_query, run_backend_tests    
 from .enums import CodingLanguagesType
+from django.http import JsonResponse
 import uuid
 from django.conf import settings
 from .languages_list import _languages
@@ -24,12 +22,13 @@ import urllib
 import ast
 import sys
 from xblockutils.resources import ResourceLoader
+from xblockutils.studio_editable import StudioEditableXBlockMixin
 
 
 loader = ResourceLoader(__name__)  # pylint: disable=invalid-name
 
 @XBlock.wants('settings')
-class CodeEditorXBlock(XBlock):
+class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
     """
     TO-DO: document what your XBlock does.
     """
@@ -57,13 +56,13 @@ class CodeEditorXBlock(XBlock):
         enforce_type=True,
     )
     question = String(
-        display_name=_("Problem"),
+        display_name=("Problem"),
         default="", scope=Scope.settings,
         help="The coding question",
         enforce_type=True,
     )
     language_type=String(
-        display_name=_("Problem Area"),
+        display_name=("Problem Area"),
         help="Backend/Frontend/Database/Docker",
         scope=Scope.settings,
         values=[(tag.name, tag.value) for tag in CodingLanguagesType],
@@ -71,35 +70,35 @@ class CodeEditorXBlock(XBlock):
         enforce_type= True,
     )
     max_score=Integer(
-        display_name=_("Max Score"),
-        help=_("Defines the maximum score for the question"),
+        display_name=("Max Score"),
+        help=("Defines the maximum score for the question"),
         scope=Scope.settings,
         default=1,
         enforce_type=True,
     )
     has_score=Boolean(
-        display_name=_("Graded"),
-        help=_("Defines if the problem is graded"),
+        display_name=("Graded"),
+        help=("Defines if the problem is graded"),
         scope=Scope.settings,
         default=True,
         enforce_type=True,
     )
     allow_main=Boolean(
-        display_name=_("Graded"),
-        help=_("Defines if the problem is graded"),
+        display_name=("Graded"),
+        help=("Defines if the problem is graded"),
         scope=Scope.settings,
         default=True,
         enforce_type=True,
     )
     enable_autocomplete=Boolean(
-        display_name=_("Enable Auto-complete"),
-        help=_("Defines the maximum score for the question"),
+        display_name=("Enable Auto-complete"),
+        help=("Defines the maximum score for the question"),
         scope=Scope.settings,
         default=False,
         enforce_type=True,
     )
     coding_Languages=String(
-        display_name=_("Coding Language"),
+        display_name=("Coding Language"),
         help=("Choose the language to code"),
         scope=Scope.user_state,
         default="C",
@@ -110,6 +109,9 @@ class CodeEditorXBlock(XBlock):
     )
     content=String(
         help=("code input by student"),
+        scope=Scope.user_state,
+    )
+    attempt=Integer(
         scope=Scope.user_state,
     )
     snippet_id = String(
@@ -162,14 +164,14 @@ class CodeEditorXBlock(XBlock):
       values= [(tag.name, tag.value) for tag in CodingLanguagesType],
     )
 
-    @classmethod
+    
     def request_save(cls, question_id):
         results = cls.objects.filter(question_id=question_id,is_submit=True)
         if results.exists():
             raise ('Response already submitted. Cannot Alter.')
         return False
 
-    @classmethod
+    
     def save_result(cls, question_id, snippet_id, is_submit, content, language):
         results = cls.objects.filter(question_id=question_id)
         if results.exists():
@@ -179,7 +181,7 @@ class CodeEditorXBlock(XBlock):
             result.snippet_id = snippet_id
             result.snippet_text = content
             result.snippet_language = language
-            result.snippet_url = settings.GLOT_SNIPPET_URL+'/snippets/'+str(snippet_id)
+            result.snippet_url = "https://glot.io/api"+'/snippets/'+str(snippet_id)
             result.is_submit = is_submit
             result.save()
             return True
@@ -187,32 +189,30 @@ class CodeEditorXBlock(XBlock):
         result = cls()
         result.question_id = question_id
         result.snippet_id = snippet_id
-        result.snippet_url = settings.GLOT_SNIPPET_URL+'/snippets/'+str(snippet_id)
+        result.snippet_url = "https://glot.io/api"+'/snippets/'+str(snippet_id)
         result.has_score = False
         result.is_submit = is_submit
         result.save()
         return True
 
-    @classmethod
-    def save_exam_score(cls, question_id, score , evaluvation_par, remarks):
-        results = cls.objects.filter(question_id=question_id)
+    def save_exam_score(self, question_id, score , evaluvation_par, remarks):
+        results = self.objects.filter(question_id=question_id)
         if results.exists():
             result = results.first()
-            result.score =  score;
+            result.score =  score
             #result.evaluation_details=  evaluvation_par;
-            result.remarks= remarks;
-            result.is_graded =  True;
+            result.remarks= remarks
+            result.is_graded =  True
             result.save()
             return True
 
         return False
 
-    def get_attempts_count(cls,question_id):
-        return len(cls.objects.filter(question_id=question_id)) 
+    def get_attempts_count(self,question_id):
+        return len(self.objects.filter(question_id=question_id)) 
 
-    @classmethod
-    def get_snippet(cls, snippet_id_deflt):
-        snippets = cls.objects.filter(snippet_id_deflt=snippet_id_deflt)
+    def get_snippet(self, snippet_id):
+        snippets = self.objects.filter(snippet_id=snippet_id_deflt)
         if snippets.exists():
             return snippets.first()           
 
@@ -228,7 +228,7 @@ class CodeEditorXBlock(XBlock):
         when viewing courses.
         """
         html = loader.render_django_template("static/html/code_editor.html")
-        frag = Fragment(html.format(self=self))
+        frag = Fragment(html)
         frag.add_css("static/css/code_editor.css")
         frag.add_javascript("static/js/src/code_editor.js")
         frag.initialize_js('CodeEditorXBlock')
@@ -257,7 +257,6 @@ class CodeEditorXBlock(XBlock):
                 data['stderr']= base64.b64decode(data['stderr']) if  data['stderr']  else None
                 data['ExamType']=CodingLanguagesType.DATABASE.value
                 return JsonResponse(data)
-
         else :
             if result_Snippet:
                 _,code = get_code_by_snippet(result_Snippet)
@@ -269,15 +268,15 @@ class CodeEditorXBlock(XBlock):
                         break
             response_data = run_backend_code(name, content, stdin, language)
             if(response_data):
-                return response_data
-        return ""
+                return JsonResponse(response_data)
+        return JsonResponse("")
         
     def get_grade(score, breakpoints=[60, 70, 80, 90], grades='FDCBA'):
         i = bisect(breakpoints, score)
         return grades[i]
 
     @XBlock.json_handler
-    def save_snippet(request):
+    def save_snippet(self,request):
         user = request.user
         language = request.POST.get('language')
         name = request.POST.get('name')
@@ -288,10 +287,10 @@ class CodeEditorXBlock(XBlock):
         is_submit =request.POST.get('is_Submit')
 
         # will throw exception if the response already submitted
-        cls.request_save(question_id)
+        self.request_save(question_id)
         # snippet_id = save_or_update_code(language, user.username, name, content, snippet_id)
 
-        if cls.save_result(question_id, snippet_id, is_submit=='true', content, language):
+        if self.save_result(question_id, snippet_id, is_submit=='true', content, language):
             # Log for auto evaluation
             #import ipdb; ipdb.set_trace()
             try :
@@ -314,10 +313,10 @@ class CodeEditorXBlock(XBlock):
 
     @login_required
     @XBlock.json_handler
-    def get_code_by_questionID(request) :
+    def get_code_by_questionID(self,request) :
         coding_question_id=self.question_id
-        coding_question = self.question
-        Coding_Result = cls.objects.filter(question=coding_question).first()
+        coding_question = self.objects.filter(question_id=coding_question_id).first()
+        Coding_Result = self.objects.filter(question_id=coding_question_id).first()
         saved_language=None
         saved_snippetid=None
         data = {}
@@ -326,19 +325,19 @@ class CodeEditorXBlock(XBlock):
         filteredLanguage=None
         attempted_language='na'
         if Coding_Result:
-            saved_snippet = self.snippet_text_deflt
+            saved_snippet = Coding_Result.snippet_text
         else:
             saved_snippet = None
 
-        if coding_question and self.is_active :
+        if coding_question:
             data['is_coding'] = True
             language_list=""
             #Loading Language
-            if self.coding_Languages :
+            if coding_question.coding_Languages :
                 # language_list=coding_question.coding_Languages.lower().split(',')
                 language_list= [language.strip() for language in coding_question.coding_Languages.lower().split(',')]
 
-            coding_languages_type =  self.language_type
+            coding_languages_type =  coding_question.language_type
             if not coding_languages_type:
                 coding_languages_type=CodingLanguagesType.BACKEND.value
 
@@ -358,12 +357,12 @@ class CodeEditorXBlock(XBlock):
 
             #Loading default snippet code
             default_snippetsID=None
-            if self.default_snippet_id:
+            if coding_question.default_snippet_id:
                 # default_snippetsID=coding_question.default_snippet_id.split(',')
                 default_snippetsID = [snippet.strip() for snippet in self.default_snippet_id.split(',')]
 
             result_SnippetsIds = None
-            if self.result_snippet_id:
+            if coding_question.result_snippet_id:
                 # result_SnippetsIds = coding_question.result_snippet_id.split(',')
                 result_SnippetsIds = [snippet.strip() for snippet in self.result_snippet_id.split(',')]
 
@@ -436,13 +435,13 @@ class CodeEditorXBlock(XBlock):
     # APIs for auto evaluation
     @csrf_exempt
     @XBlock.json_handler
-    def get_pending_responses(request):
+    def get_pending_responses(self,request):
         course_id = request.GET['course_id']
         if course_id:
             course_id = course_id.replace('*','+')
-            responses = cls.objects.filter(has_score=False,is_submit=True)
+            responses = self.objects.filter(has_score=False,is_submit=True)
         else :
-            responses = cls.objects.filter(has_score=False,is_submit=True)
+            responses = self.objects.filter(has_score=False,is_submit=True)
         ids = []
         if responses.exists():
             ids = [response.id for response in responses]
@@ -450,8 +449,8 @@ class CodeEditorXBlock(XBlock):
 
     @csrf_exempt
     @XBlock.json_handler
-    def get_student_response(request):
-        responses = cls.objects.filter(has_score=False,is_submit=True)
+    def get_student_response(self,request):
+        responses = self.objects.filter(has_score=False,is_submit=True)
         response_data = {}
         if responses.exists():
             response = responses.first()
@@ -484,7 +483,7 @@ class CodeEditorXBlock(XBlock):
     @login_required
     def get_snippet_manager(request):
         if not (request.user.is_superuser or request.user.is_staff):
-            raise NotFoundError('Unauthorized Request')
+            raise 'Unauthorized Request'
 
         #import ipdb;ipdb.set_trace()
         backend = json.dumps(_languages.BACKEND)
@@ -497,27 +496,31 @@ class CodeEditorXBlock(XBlock):
             'DEVOPS':devops,
             'FRONTEND':frontend
         }
-        return render(None,'snippet-manager.html',context)
+        html = loader.render_django_template("static/html/code_editor.html")
+        frag = Fragment(html)
+        return frag
 
     @login_required
     @XBlock.json_handler
-    def get_snippet_code(request, snippet_id):
+    def get_snippet_code(self,request, snippet_id):
         data = {}
         #import ipdb; ipdb.set_trace()
         # data['language'], data['code'] = get_code_by_snippet(snippet_id)
-        coding_results = cls.objects.filter(snippet_id=snippet_id)
+        coding_results = self.objects.filter(snippet_id=snippet_id)
         if coding_results.exists:
             result = coding_results.first()
             data["language"] = result.snippet_language
             data["code"] = result.snippet_text
+
         return JsonResponse(data)
 
     @login_required
     @XBlock.json_handler
     def save_or_update_snippet_code(request):
+        """ 
         if not (request.user.is_superuser or request.user.is_staff):
-            raise NotFoundError('Unauthorized Request')
-
+        raise NotFoundError('Unauthorized Request')
+        """
         language = request.POST.get('language')
         filename = request.POST.get('filename')
         content = request.POST.get('content')
@@ -526,7 +529,7 @@ class CodeEditorXBlock(XBlock):
 
         data = {}
         data['snippet_id'] = save_or_update_code(language, request.user.username, filename, content, snippet_id if is_update == 'true' else None)
-
+        self.runtime.publish(self,data)
         return JsonResponse(data)
 
 

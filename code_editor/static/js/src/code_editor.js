@@ -1,21 +1,24 @@
-function CodeEditorXBlock(element){
+function CodeEditorXBlock(element,runtime){
 /* Javascript for CodeEditorXBlock. */
         // Retrieve Elements
-
+        var saveHandlerUrl=runtime.handlerUrl(element,'save_or_update_snippet_code');
+        var getHandlerUrl=runtime.handlerUrl(element,'get_snippet_code');
+        
+        
         let Code_Editor = new function(){
             const ACE_URL1 = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.js",
                 ACE_URL2 = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ext-language_tools.min.js";
             const LanguageTypes = {
-                'BACKEND': ${BACKEND},
-                'DATABASE':${DATABASE},
-                'DEVOPS':${DEVOPS},
-                'FRONTEND':${FRONTEND}
+                'BACKEND': $('#backend',element).val(),
+                'DATABASE': $('#database',element).val(),
+                'DEVOPS': $('#devops',element).val(),
+                'FRONTEND': $('#frontend',element).val()
             }
 
             let _Loader = {
 
-                $loading : $('.loader',element).show(),
-                $CodeeditorDiv : $('.assessment-sec',element).hide(),
+                $loading : $('.loader').show(),
+                $CodeeditorDiv : $('.assessment-sec').hide(),
 
                 _show : function(){
                     _Loader.$loading.show();
@@ -114,7 +117,7 @@ function CodeEditorXBlock(element){
 
             let _Editor_Ops = {
 
-                _saveCode : function(isUpdate = false){
+                _saveCode : function(isUpdate = false,url){
                     let $button = $('#saveBtn',element),
                     $requestMsg = $('#savingMsg',element),
                     $responseMsg = $('#savedMsg',element)
@@ -131,7 +134,7 @@ function CodeEditorXBlock(element){
                     $('#saveBtn',element).prop('disabled', true);
                     $('#updateBtn',element).prop('disabled', true);
                     $requestMsg.css('display','inline');
-                    $.post("/code_editor/snippet/save_or_update", {
+                    $.post(url, {
                         language : codeArray[$("#languageChange :selected",element).val()].language,
                         filename : codeArray[$("#languageChange :selected",element).val()].filename,
                         content : _Editor_Activity.editor.getValue(),
@@ -237,13 +240,13 @@ function CodeEditorXBlock(element){
                     _Loader._hide();
                 },
 
-                _getSnippet : function(){
+                _getSnippet : function(url){
                     if($('.snippet_id',element).val().length == 0){
                         notification_manager.display_Notification('Please Enter a Snippet ID to fetch code');
                         throw new Error("No Snippet ID to fetch code");
                     }
                     let snippet_id = $('.snippet_id',element).val();
-                    $.get("/code_editor/snippet/get/"+snippet_id, function(data,status){
+                    $.get(url+snippet_id, function(data,status){
                         if(status == "success"){
                             console.log(data);
                             $('#snippetid',element).text(snippet_id);
@@ -279,7 +282,7 @@ function CodeEditorXBlock(element){
                     });
 
                     $('#getBtn',element).click(function(){
-                        _Editor_Ops._getSnippet();
+                        _Editor_Ops._getSnippet(getHandlerUrl);
                     });
 
                     $('#close-preview',element).click(function(){
@@ -289,7 +292,7 @@ function CodeEditorXBlock(element){
                         }
                     });
                     $("#saveBtn",element).click(function(){
-                        _Editor_Ops._saveCode(isUpdate=false);
+                        _Editor_Ops._saveCode(isUpdate=false,saveHandlerUrl);
                     });
 
                     $("#toggleHint",element).click(function(){
