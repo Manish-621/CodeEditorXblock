@@ -133,29 +133,35 @@ function CodeEditorXBlock(runtime, element, init_args){
                     $('#saveBtn' ).prop('disabled', true);
                     $('#updateBtn' ).prop('disabled', true);
                     $requestMsg.css('display','inline');
-                    $.post(url, {
+                    let pstdata={
                         language : codeArray[$("#languageChange :selected" ).val()].language,
                         filename : codeArray[$("#languageChange :selected" ).val()].filename,
                         content : _Editor_Activity.editor.getValue(),
                         snippet_id : $('.snippet_id' ).val(),
                         is_Update : isUpdate
-                    },
-                    function(data, status) {
-                        if(status == "success"){
-                            $('#snippetid' ).text(data['snippet_id']);
-                            $responseMsg.css('display','inline');
-                            $requestMsg.css('display','none');
-                            setTimeout(() => {
-                                $responseMsg.css('display','none');
-                            }, 3000);
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: JSON.stringify(pstdata),
+                        success: function(data, status) {
+                            if(status == "success"){
+                                $('#snippetid' ).text(data['snippet_id']);
+                                $responseMsg.css('display','inline');
+                                $requestMsg.css('display','none');
+                                setTimeout(() => {
+                                    $responseMsg.css('display','none');
+                                }, 3000);
+                                $('#saveBtn' ).prop('disabled', false);
+                                $('#updateBtn' ).prop('disabled', false);
+                            }
+                            },
+                        error: function() {
+                            $('.output-terminal' ).html("<div>Got unexpected response<div>");
                             $('#saveBtn' ).prop('disabled', false);
                             $('#updateBtn' ).prop('disabled', false);
+                            $requestMsg.css('display','none');
                         }
-                    }).fail(function() {
-                        $('.output-terminal' ).html("<div>Got unexpected response<div>");
-                        $('#saveBtn' ).prop('disabled', false);
-                        $('#updateBtn' ).prop('disabled', false);
-                        $requestMsg.css('display','none');
                     });
 
                 },
@@ -166,44 +172,48 @@ function CodeEditorXBlock(runtime, element, init_args){
                     $('.output-terminal' ).html("<div>Running.....<div>")
                     var str = $('.code-footer input' )[0].value;
                     var input= str.replace(",", "\n");
-                    $.post(url, {
+                    let pstdata = {
                         name: codeArray[$("#languageChange :selected" ).val()].filename,
-                        result_Snippet: "",
                         content: _Editor_Activity.editor.getValue(),
                         language: codeArray[$("#languageChange :selected" ).val()].language,
                         stdin:input,
                         allow_main : true
-                    },
-                  
-                    function(data, status) {
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: JSON.stringify(pstdata),
+                        success: function(data, status) {
 
-                        $('#runBtn' ).prop('disabled', false);
-                        var jsonRes=data;
-                        if(!data) {
-                            $('.output-terminal' ).html("<div>Got unexpected response<div>")
-                        }
-                        else if(jsonRes.ExamType=="DATABASE") {
-                            if(!jsonRes.stderr){
-                                try{
-                                    $('.output-terminal' ).html('<table class="result_table" style="white-space:nowrap;">'+data.stdout+'</table>');
-                                }
-                                catch(e){
-                                    $('.output-terminal' ).html(data.stdout);
-                                }
-                            }
-                            else
-                                $('.output-terminal' ).html("<div>"+jsonRes.stderr+"<div>")
-                            }
+                                    $('#runBtn' ).prop('disabled', false);
+                                    var jsonRes=data;
+                                    if(!data) {
+                                        $('.output-terminal' ).html("<div>Got unexpected response<div>")
+                                    }
+                                    else if(jsonRes.ExamType=="DATABASE") {
+                                        if(!jsonRes.stderr){
+                                            try{
+                                                $('.output-terminal' ).html('<table class="result_table" style="white-space:nowrap;">'+data.stdout+'</table>');
+                                            }
+                                            catch(e){
+                                                $('.output-terminal' ).html(data.stdout);
+                                            }
+                                        }
+                                        else
+                                            $('.output-terminal' ).html("<div>"+jsonRes.stderr+"<div>")
+                                        }
 
-                        else{
-                            if(!jsonRes.stderr)
-                                $('.output-terminal' ).html("<div>"+jsonRes.stdout+"<div>")
-                            else
-                                $('.output-terminal' ).html("<div>"+jsonRes.stderr+"<div>")
-                        }
-                    }).fail(function() {
-                        $('#runBtn' ).prop('disabled', false);
-                        $('.output-terminal' ).html("<div>Got unexpected response<div>");
+                                    else{
+                                        if(!jsonRes.stderr)
+                                            $('.output-terminal' ).html("<div>"+jsonRes.stdout+"<div>")
+                                        else
+                                            $('.output-terminal' ).html("<div>"+jsonRes.stderr+"<div>")
+                                    }
+                                },
+                         error: function() {
+                                    $('#runBtn' ).prop('disabled', false);
+                                    $('.output-terminal' ).html("<div>Got unexpected response<div>");
+                                },
                     });
                 },
 
@@ -233,7 +243,7 @@ function CodeEditorXBlock(runtime, element, init_args){
                     }
                     
                            for( var language in coding_Languages){
-                            $("#languageChange" ).append($('<option></option>').val(language).html(coding_Languages[language].language));
+                            $("#languageChange" ).append($('<option></option>').val(language).html(coding_Languages[language].displayname));
                            }
 
                     codeArray=coding_Languages;

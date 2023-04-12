@@ -3,7 +3,9 @@ from __future__ import absolute_import
 import copy
 import re
 from collections import namedtuple
-
+import requests
+import json
+import random
 import bleach
 
 from bleach.css_sanitizer import CSSSanitizer
@@ -35,9 +37,9 @@ def get_code_by_snippet(snippet_id):
 ###
 # Method to save or update the given code in glot compiler
 ###
-def save_or_update_code(language, username, filename, content, snippet_id) :
+def save_or_update_code(language, filename, content, snippet_id) :
     data = {"language": language,
-         "title": username+""+str(random.randrange(1,1000)) ,
+         "title": str(random.randrange(1,1000)) ,
          "public": False,
          "files": [{"name": filename, "content": content}]
          }

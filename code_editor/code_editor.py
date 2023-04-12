@@ -236,7 +236,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             'DEVOPS':devops,
             'FRONTEND':frontend
         }
-        html = loader.render_django_template("static/html/code_editor.html",context)
+        html = loader.render_django_template("static/html/code_editor.html")
         frag = Fragment(html)
         css = loader.render_django_template('static/css/code_editor.css')
         frag.add_css(css)
@@ -248,17 +248,16 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
     # than one handler, or you may not need any handlers at all.
 
     @XBlock.json_handler
-    def run_snippet(request):
-        name = request.POST.get('name')
-        content = request.POST.get('content')
-        stdin = request.POST.get('stdin')
-        language= request.POST.get('language')
-        result_Snippet = request.POST.get('resultSnippet')
-        allow_main = request.POST.get('allow_main')
-
+    def run_snippet(self,request,data,unused_suffix=''):
+        name = request['name']
+        content = request['content']
+        stdin = request['stdin']
+        language= request['language']
+        result_Snippet = self.result_snippet_id
+        allow_main = request['allow_main']
         if 'sql' in language :
             question_id=request.POST.get('question_id')
-            resp1 = requests.get(coding_exam.additional_information, allow_redirects=True, verify=False)
+            resp1 = requests.get(self.additional_information, allow_redirects=True, verify=False)
             db_content = base64.b64encode(resp1.content)
             data = run_sql_query(content, db_content)
 
@@ -266,7 +265,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
                 data['stdout']= base64.b64decode(data['stdout']) if  data['stdout']  else None
                 data['stderr']= base64.b64decode(data['stderr']) if  data['stderr']  else None
                 data['ExamType']=CodingLanguagesType.DATABASE.value
-                return JsonResponse(data)
+                return data
         else :
             if result_Snippet:
                 _,code = get_code_by_snippet(result_Snippet)
@@ -278,8 +277,8 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
                         break
             response_data = run_backend_code(name, content, stdin, language)
             if(response_data):
-                return JsonResponse(response_data)
-        return JsonResponse("")
+                return response_data
+        return ""
         
     def get_grade(score, breakpoints=[60, 70, 80, 90], grades='FDCBA'):
         i = bisect(breakpoints, score)
@@ -287,7 +286,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
 
     @XBlock.json_handler
     def save_snippet(self,request):
-        user = request.user
+        #user = request.user
         language = request.POST.get('language')
         name = request.POST.get('name')
         content = request.POST.get('content')
@@ -318,8 +317,8 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
                     response = requests.post(url = settings.AZURE_CLI_API_URL+'/api/v1/evaluation/add-job', data = payload, headers = headers)
             except :
                 print(str(sys.exc_info()[1]))
-            return JsonResponse({'success': True, 'snippet_id':snippet_id})
-        return JsonResponse({'success': False})
+            return {'success': True, 'snippet_id':snippet_id}
+        return {'success': False}
 
     @login_required
     @XBlock.json_handler
@@ -439,7 +438,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             data['allow_main'] = coding_question.allow_main_method
         else :
             data['is_coding'] = False
-        return JsonResponse(data)
+        return data
 
 
     # APIs for auto evaluation
@@ -455,7 +454,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         ids = []
         if responses.exists():
             ids = [response.id for response in responses]
-        return JsonResponse(json.dumps(ids))
+        return json.dumps(ids)
 
     @csrf_exempt
     @XBlock.json_handler
@@ -470,7 +469,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             if response.coding_exam.coding_Languages_type == CodingLanguagesType.DATABASE.value :
                 response_data['langType'] = 'db'
             response_data['evaluation_parameters'] = response.coding_exam.evaluvation_parameters
-        return JsonResponse(json.dumps(response_data))
+        return json.dumps(response_data)
 
     @csrf_exempt
     @XBlock.json_handler
@@ -486,7 +485,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             response.is_graded = 1
             response.save()
 
-        return JsonResponse({'success':True})
+        return {'success':True}
 
     @login_required
     @XBlock.json_handler
@@ -500,25 +499,23 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             data["language"] = result.snippet_language
             data["code"] = result.snippet_text
 
-        return JsonResponse(data)
+        return data
 
-    @login_required
     @XBlock.json_handler
-    def save_or_update_snippet_code(request):
+    def save_or_update_snippet_code(self,request,unused_suffix=''):
         """ 
         if not (request.user.is_superuser or request.user.is_staff):
         raise NotFoundError('Unauthorized Request')
         """
-        language = request.POST.get('language')
-        filename = request.POST.get('filename')
-        content = request.POST.get('content')
-        snippet_id = request.POST.get('snippet_id')
-        is_update =request.POST.get('is_Update')
+        language = request['language']
+        filename = request['filename']
+        content = request['content']
+        snippet_id = request['snippet_id']
+        is_update =request['is_Update']
 
         data = {}
-        data['snippet_id'] = save_or_update_code(language, request.user.username, filename, content, snippet_id if is_update == 'true' else None)
-        self.runtime.publish(self,data)
-        return JsonResponse(data)
+        data['snippet_id'] = save_or_update_code(language,filename, content, snippet_id if is_update == 'true' else None)
+        return data
 
 
     @XBlock.json_handler
