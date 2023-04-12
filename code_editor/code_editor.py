@@ -236,11 +236,16 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             'DEVOPS':devops,
             'FRONTEND':frontend
         }
+        js_urls = [
+            'static/js/vendor/virtual-dom-1.3.0.min.js',
+            'static/js/src/code_editor.js',
+        ]
         html = loader.render_django_template("static/html/code_editor.html")
         frag = Fragment(html)
         css = loader.render_django_template('static/css/code_editor.css')
         frag.add_css(css)
-        frag.add_javascript(loader.load_unicode("static/js/src/code_editor.js"))
+        for js_url in js_urls:
+            frag.add_javascript(loader.load_unicode(js_url))
         frag.initialize_js('CodeEditorXBlock',context)
         return frag
 
