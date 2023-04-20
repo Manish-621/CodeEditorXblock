@@ -1,41 +1,44 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
   integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<div class="editor-frame" style="width:1120px !important; height: 800px !important;">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <div class="editor-frame" style="width:1120px !important; height: 800px !important; font-family: 'Inter';">
     <div class="code-container">
         <div class="code-body">
             <div class="code-editor-con">
                 <form class="code-editor-form mt-6">
-                    <div class="form-group col-md-12 row" style="margin-bottom: 5px;">
-                        <div class="col-md-3">
-                            <label style="margin-right: 5px;font-size: 14px;">Language Type: </label>
-                            <select id="languageTypeChange" class="editorLable" name="language" style="width:8Vw ;">
-                                <option id="backend" style="" value ="BACKEND">Back End</option>
-                                <option id="database" style="" value ="DATABASE">Database</option>
-                                <option id="devops" style="" value ="DEVOPS">DevOps</option>
-                                <option id="frontend" style="" value ="FRONTEND">Front End</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label style="margin-right: 5px;font-size: 14px;">Language: </label>
-                            <select id="languageChange" class="editorLable" name="language" style="width:8Vw; color:black;">
-                                    <!-- <option style=" color:#3277a8e8;" value =""></option>              -->
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label style="margin-right: 5px;font-size: 14px;">Editor Theme: </label>
-                            <select id="themeChange" class="editorLable" name="editorTheme" style="width:8Vw;">
-                                <option value ="monokai">Dark Mode</option>
-                                <option value ="sqlserver">Light Mode</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label style="margin-right: 5px;font-size: 14px;">Font Size: </label>
-                            <select id="fontChange" class="editorLable" name="editorTheme" style="width:8Vw;">
-                                <option value ="12">Small</option>
-                                <option selected value ="14">Medium</option>
-                                <option value ="18">Large</option>
-                            </select>
-                        </div>
+                    <div class="form-group col-md-12 flex-row d-flex justify-content-end" style="margin-bottom: 5px;">
+                        <div class="col-10 d-flex flex-row justify-content-end">
+                            <div class="col-md-3 mx-0 px-0">
+                                <label style="margin-right: 5px;font-size: 14px; font-family: 'Inter'; color:rgb(226, 218, 218) ;">Domain: </label>
+                                <select id="languageTypeChange" class="editorLable" name="language" style="width:8Vw; color:rgb(226, 218, 218);">
+                                    <option id="backend" style="" value ="BACKEND">Back End</option>
+                                    <option id="database" style="" value ="DATABASE">Database</option>
+                                    <option id="devops" style="" value ="DEVOPS">DevOps</option>
+                                    <option id="frontend" style="" value ="FRONTEND">Front End</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mx-0 px-0">
+                                <label style="margin-right: 5px;font-size: 14px; color:rgb(226, 218, 218) ;">Language: </label>
+                                <select id="languageChange" class="editorLable" name="language" style="width:8Vw; color:rgb(226, 218, 218);">
+                                        <!-- <option style=" color:#3277a8e8;" value =""></option>              -->
+                                </select>
+                            </div>
+                            <div class="col-md-3 mx-0">
+                                <label style="margin-right: 5px;font-size: 14px; color:rgb(226, 218, 218);">Theme: </label>
+                                <select id="themeChange" class="editorLable" name="editorTheme" style="width:8Vw; color:rgb(226, 218, 218);">
+                                    <option value ="monokai">Dark Mode</option>
+                                    <option value ="sqlserver">Light Mode</option>
+                                </select>
+                            </div>
+                            <!--<div class="col-md-3">
+                                <label style="margin-right: 5px;font-size: 14px;">Font Size: </label>
+                                <select id="fontChange" class="editorLable" name="editorTheme" style="width:8Vw;">
+                                    <option value ="12">Small</option>
+                                    <option selected value ="14">Medium</option>
+                                    <option value ="18">Large</option>
+                                </select>
+                            </div>-->
+                        </div>    
                     </div>
                     <!-- <div data-intro="Timer" data-position="left">
                         {{currentTime}}
@@ -50,25 +53,27 @@
                 <div class="code-footer">
                     <input class="code_run_ele run_default" data-intro="Enter custom input here" data-position="left" type="text" placeholder="Input"  style="font-size: 0.8em;"/>
 
-                    <button id="runBtn" data-intro="Click here to Run custom inputs" data-position="left" class="code_run_ele run_default run_database btn btn-sm btn-info" style="margin-right: 5px;">
+                    <button id="runBtn" data-intro="Click here to Run custom inputs" data-position="left" class="code_run_ele run_default run_database btn btn-sm" style="margin-right: 5px; float: right; background-color:rgb(56, 55, 55);">
                         <i class="fa fa-play" aria-hidden="true" style="margin-right: 5px;"></i>Run
                     </button>
 
-                    <button id="previewBtn" data-intro="Click here to preview" data-position="left" class="code_run_ele run_frontend btn btn-sm btn-info" style="margin-right: 5px;">
+                    <button id="previewBtn" data-intro="Click here to preview" data-position="left" class="code_run_ele run_frontend btn btn-sm " style="margin-right: 5px; float: right; background-color:rgb(56, 55, 55);">
                         <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;"></i>Preview
                     </button>
 
-                    <button id="saveBtn" style="float:right;margin-right:10px;margin-left:50px;color: #fff; background-color: #28a745; border-color: #28a745; box-shadow: inset 0 1px 0 0 #28a745; background-image: unset; font-weight: 400;" data-disable-interaction="true" data-position="left" data-position="left" data-intro="Click here to submit the code" title="Once submitted, you cannot change." class="btn btn-sm btn-success">Save</button>
+                    <button id="saveBtn" style="float:right;margin-right:10px;margin-left:50px;color: #fff; background-color: #1a7194; border-color: #101111; box-shadow: inset 0 1px 0 0 #28a745; background-image: unset; font-weight: 400;" data-disable-interaction="true" data-position="left" data-position="left" data-intro="Click here to submit the code" title="Once submitted, you cannot change." class="btn btn-sm btn-success">Save</button>
 
-                    <button id="updateBtn" style="float:right;margin-left:50px;color: #fff; background-color:#eb931a; border-color: #eb931a; box-shadow: inset 0 1px 0 0 #eb931a; background-image: unset; font-weight: 400;" data-disable-interaction="true" data-position="left" data-position="left" data-intro="Click here to save the code" " class="btn btn-sm btn-primary">Update</button>
+                   <!-- <button id="updateBtn" style="float:right;margin-left:50px;color: #fff; background-color:#eb931a; border-color: #eb931a; box-shadow: inset 0 1px 0 0 #eb931a; background-image: unset; font-weight: 400;" data-disable-interaction="true" data-position="left" data-position="left" data-intro="Click here to save the code" " class="btn btn-sm btn-primary">Update</button>
 
                     <button id="getBtn" data-intro="Click here to Run custom inputs" data-position="left" class="btn btn-sm btn-primary" style="float:right;margin-left:20px; color: #fff; background-color:#0175B4; border-color: #0175B4; box-shadow: inset 0 1px 0 0 #0175B4; background-image: unset; font-weight: 400;">Get Code
-                    </button>
-
-                    <input class="snippet_id" data-intro="Enter custom input here" data-position="left" type="text" placeholder="Snippet ID"  style="font-size: 0.8em;float: right;"/>
-
+                    </button> 
                     <span>Snippet ID : <span id="snippetid"></span></span>
+                    <input class="snippet_id" data-intro="Enter custom input here" data-position="left" type="text" placeholder="Snippet ID"  style="font-size: 0.8em;float: right;"/>
+                -->
 
+                   
+
+                    
                     <span id="savingMsg" style="margin-left:2%;display: none;color: darkgray;">Saving....</span>
                     <span id="savedMsg"  style="margin-left:2%; display: none;color:#28a745">Code Saved successfully..</span>
                     <span id="submittingMsg" style="margin-left:2%;display: none;color: darkgray;">Updating....</span>
