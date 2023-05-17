@@ -252,6 +252,62 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
     # TO-DO: change this handler to perform your own actions.  You may need more
     # than one handler, or you may not need any handlers at all.
 
+    def studio_view(self, context):
+        """
+        Editing view in Studio
+        """
+        #js_templates = loader.load_unicode('/static/html/js_templates.html')
+        # Get an 'id_suffix' string that is unique for this block.
+        # We append it to HTML element ID attributes to ensure multiple instances of the DnDv2 block
+        # on the same page don't share the same ID value.
+        # We avoid using ID attributes in preference to classes, but sometimes we still need IDs to
+        # connect 'for' and 'aria-describedby' attributes to the associated elements.
+        # id_suffix = self._get_block_id()
+        # js_templates = js_templates.replace('{{id_suffix}}', id_suffix)
+        # context = {
+        #     'js_templates': js_templates,
+        #     'id_suffix': id_suffix,
+        #     'fields': self.fields,
+        #     'showanswer_set': self._field_data.has(self, 'showanswer'),  # If false, we're using an inherited value.
+        #     'self': self,
+        #     'data': six.moves.urllib.parse.quote(json.dumps(self.content)),
+        # }
+
+        fragment = Fragment()
+        fragment.add_content(loader.render_django_template('/static/html/code_editor_view.html',context=None))
+        css_urls = (
+            'public/css/code_editor_view.css',
+        )
+        js_urls = [
+             'public/js/vendor/handlebars-v1.1.2.js'
+        ]
+        #     'public/js/code_editor_view.js',
+    
+        for css_url in css_urls:
+            fragment.add_css_url(self.runtime.local_resource_url(self, css_url))
+        for js_url in js_urls:
+            fragment.add_javascript_url(self.runtime.local_resource_url(self, js_url))
+
+        # Do a bit of manipulation so we get the appearance of a list of zone options on
+        # items that still have just a single zone stored
+
+        # items = self.data.get('items', [])
+
+        # for item in items:
+        #     zones = self.get_item_zones(item['id'])
+        #     # Note that we appear to be mutating the state of the XBlock here, but because
+        #     # the change won't be committed, we're actually just affecting the data that
+        #     # we're going to send to the client, not what's saved in the backing store.
+        #     item['zones'] = zones
+        #     item.pop('zone', None)
+
+        # fragment.initialize_js('CodeEditorXBlock', {
+        #     'data': self.data,
+        #     'target_img_expanded_url': self.target_img_expanded_url,
+        #     'default_background_image_url': self.default_background_image_url,
+        # })
+        return fragment
+
     @XBlock.json_handler
     def run_snippet(self,request,data,unused_suffix=''):
         name = request['name']
