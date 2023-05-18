@@ -21,6 +21,7 @@ import uuid
 import urllib
 import ast
 import sys
+import os 
 from xblockutils.resources import ResourceLoader
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
@@ -56,16 +57,22 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         enforce_type=True,
     )
     question = String(
-        display_name=("Problem"),
-        default="", scope=Scope.settings,
-        help="The coding question",
+        display_name=("Coding Question"),
+        default='Write a program to print Hello World', 
+        scope=Scope.settings,
+        help="Enter the coding question",
         enforce_type=True,
     )
-    language_type=Dict(
+    language_type=String(
         display_name=("Problem Area"),
         help="Backend/Frontend/Database/Docker",
         scope=Scope.settings,
-        values=[(tag.name, tag.value) for tag in CodingLanguagesType],
+        values=[
+               { "display_name":"Backend", "value":"BACKEND" },
+               { "display_name":"Frontend", "value":"FRONTEND" },
+               { "display_name":"Database", "value":"DATABASE" },
+               { "display_name":"Devops", "value":"DEVOPS" },
+               ],
         enforce_type= True,
     )
     max_score=Integer(
@@ -76,7 +83,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         enforce_type=True,
     )
     has_score=Boolean(
-        display_name=("Graded"),
+        display_name=("Has Score"),
         help=("Defines if the problem is graded"),
         scope=Scope.settings,
         default=True,
@@ -90,8 +97,8 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         enforce_type=True,
     )
     enable_autocomplete=Boolean(
-        display_name=("Enable Auto-complete"),
-        help=("Defines the maximum score for the question"),
+        display_name=("Enable auto-complete"),
+        help=("Enable Auto-complete"),
         scope=Scope.settings,
         default=False,
         enforce_type=True,
@@ -105,13 +112,18 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
     )
     evaluation_parameters=String(
         scope=Scope.settings,
+        display_name=("Evaluation Parameters"),
+        help=("Enter the test cases for auto-evaluation"),
     )
     content=String(
         help=("code input by student"),
         scope=Scope.user_state,
     )
-    attempt=Integer(
-        scope=Scope.user_state,
+    max_attempts=Integer(
+        scope=Scope.settings,
+        default=1,
+        display_name=("Max Attempts"),
+        help=("The number of attempts the student can make"),
     )
     snippet_id = String(
         scope=Scope.user_state,
@@ -236,11 +248,15 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             'DEVOPS':devops,
             'FRONTEND':frontend
         }
+        cont= {
+            'fields':self.fields,
+            'self':self,
+        }
         js_urls = [
             'static/js/vendor/virtual-dom-1.3.0.min.js',
             'static/js/src/code_editor.js',
         ]
-        html = loader.render_django_template("static/html/code_editor.html")
+        html = loader.render_django_template("templates/code_editor.html",cont)
         frag = Fragment(html)
         css = loader.render_django_template('static/css/code_editor.css')
         frag.add_css(css)
@@ -264,29 +280,28 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         # connect 'for' and 'aria-describedby' attributes to the associated elements.
         # id_suffix = self._get_block_id()
         # js_templates = js_templates.replace('{{id_suffix}}', id_suffix)
-        # context = {
-        #     'js_templates': js_templates,
-        #     'id_suffix': id_suffix,
-        #     'fields': self.fields,
-        #     'showanswer_set': self._field_data.has(self, 'showanswer'),  # If false, we're using an inherited value.
-        #     'self': self,
-        #     'data': six.moves.urllib.parse.quote(json.dumps(self.content)),
-        # }
-
-        fragment = Fragment()
-        fragment.add_content(loader.render_django_template('/static/html/code_editor_view.html',context=None))
         css_urls = (
-            'public/css/code_editor_view.css',
+            'static/css/code_editor_view.css',
         )
+        context.update({
+            'fields': self.fields,
+            'self': self,
+            'urls': css_urls
+        })
+        fragment = Fragment()
+        fragment.add_content(loader.render_django_template('templates/code_editor_view.html',context))
+        #fragment.add_content(loader.render_django_template('/static/html/code_editor_view.html',context=context))
+        css = loader.render_django_template('static/css/code_editor_view.css')
         js_urls = [
-             'public/js/vendor/handlebars-v1.1.2.js'
+             'static/js/vendor/handlebars-v1.1.2.js',
+             'static/js/src/code_editor_view.js',
         ]
         #     'public/js/code_editor_view.js',
-    
-        for css_url in css_urls:
-            fragment.add_css_url(self.runtime.local_resource_url(self, css_url))
+        fragment.add_css(css)
+        # for css_url in css_urls:
+        #     fragment.add_css_url(self.runtime.local_resource_url(self, css_url))
         for js_url in js_urls:
-            fragment.add_javascript_url(self.runtime.local_resource_url(self, js_url))
+             fragment.add_javascript(loader.load_unicode(js_url))
 
         # Do a bit of manipulation so we get the appearance of a list of zone options on
         # items that still have just a single zone stored
@@ -301,12 +316,29 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         #     item['zones'] = zones
         #     item.pop('zone', None)
 
-        # fragment.initialize_js('CodeEditorXBlock', {
-        #     'data': self.data,
-        #     'target_img_expanded_url': self.target_img_expanded_url,
-        #     'default_background_image_url': self.default_background_image_url,
-        # })
+        fragment.initialize_js('CodeEditorViewXBlock')
         return fragment
+
+    @XBlock.json_handler
+    def studio_submit(self, submissions, suffix=''):
+        """
+        Handles studio save.
+        """
+        self.question = submissions['question']
+        self.language_type = submissions['language_type']
+        self.max_attempts = submissions['max_attempts']
+        # if (showanswer := submissions['showanswer']) != self.showanswer:
+        #     self.showanswer = showanswer
+        # if showanswer == SHOWANSWER.DEFAULT:
+        #     del self.showanswer
+        self.has_score = submissions['has_score']
+        self.max_score = int(submissions['max_score'])
+        self.enable_autocomplete = submissions['enable_autocomplete']
+        self.evaluation_parameters = submissions['evaluation_parameters']
+        s
+        return {
+            'result': 'success',
+        }    
 
     @XBlock.json_handler
     def run_snippet(self,request,data,unused_suffix=''):

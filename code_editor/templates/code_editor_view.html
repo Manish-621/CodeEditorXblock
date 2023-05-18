@@ -1,0 +1,84 @@
+{% load static %}
+{% load l10n %}
+
+<div class="xblock--drag-and-drop--editor editor-with-buttons">
+    <div class="drag-builder">
+        <section class="tab feedback-tab">
+            <header class="tab-header">
+                <h3>Basic Settings</h3>
+            </header>
+            <div class="tab-content">
+                <form class="feedback-form">
+                    <label class="h4">
+                        <span>{{ fields.question.display_name }}</span>
+                        <textarea class="question">{{ fields.question.help }} </textarea>
+                    </label>
+                    <label class="h4">
+                        <span> {{ fields.language_type.display_name }}</span>
+                        <select class="language-type">
+                        {% for field_value in fields.language_type.values %}
+                                <option value="{{ field_value.value }}">
+                                    {{  field_value.display_name }}
+                                </option>
+                        {% endfor %}
+                       </select>
+                    </label>
+                    <label class="h4 assessment-setting">
+                      <span>{{ fields.max_attempts.display_name }}</span>
+                      <input class="max-attempts"
+                             type="number"
+                             min="1"
+                             step="1"
+                             aria-describedby="max-attempts-description"
+                             {% if self.max_attempts %}value="{{ self.max_attempts }}"{% endif %} />
+                    </label>
+                    <div id="max-attempts-description" class="assessment-setting form-help">
+                      {{fields.max_attempts.help}}
+                    </div>
+
+                    <label class="checkbox-label">
+                        <input class="has_score"
+                               type="checkbox"
+                               aria-describedby="{{ has_score.help }}"
+                          {% if self.has_score %}checked="checked"{% endif %}>
+                          {{ fields.has_score.display_name }}
+                    </label>
+
+                    <label class="h4">
+                        <span>{{ fields.max_score.display_name }}</span>
+                        <input class="max_score" type="number" step="10" value="{{ fields.max_score }}"/>
+                    </label>
+                    <div id="weight-description" class="assessment-setting form-help">
+                         {{ fields.max_score.help }}
+                    </div>
+
+                    <label class="checkbox-label">
+                        <input class="enable_autocomplete"
+                               type="checkbox"
+                          {% if self.enable_autocomplete %}checked="checked"{% endif %}>
+                          {{ fields.enable_autocomplete.display_name }}
+                    </label>
+
+                    <label class="h4">
+                        <span>{{ fields.evaluation_parameters.display_name }}</span>
+                        <textarea class="eval-parameters">{{ fields.evaluation_parameters.help }}</textarea>
+                    </label>
+                </form>
+            </div>
+        </section>
+
+    </div>
+
+    <div class="xblock-actions">
+      <ul class="action-buttons">
+       
+        <li class="action-item">
+          <a href="#" class="button btn action-primary save-button">Save</a></button>
+        </li>
+
+        <li class="action-item">
+          <a href="#" class="button btn cancel-button">Cancel</a>
+        </li>
+      </ul>
+    </div>
+</div>

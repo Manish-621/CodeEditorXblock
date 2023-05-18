@@ -270,16 +270,16 @@
       font-size: 12px;
       margin-top: 2em;
   }
-  .xblock--drag-and-drop--editor .items-form .row.advanced-link button {
+  .xblock--drag-and-drop--editor .items-form .row.advanced-link .button {
       background: none;
       border: none;
       color: #4c4c4c;
   }
-  .xblock--drag-and-drop--editor .items-form .row.advanced-link button:before {
+  .xblock--drag-and-drop--editor .items-form .row.advanced-link .button:before {
       content: '\25B6';
       margin-right: 0.5em;
   }
-  .rtl .xblock--drag-and-drop--editor .items-form .row.advanced-link button:before {
+  .rtl .xblock--drag-and-drop--editor .items-form .row.advanced-link .button:before {
       content: '\25C0';
       margin-left: 0.5em;
       margin-right: 0;
@@ -296,6 +296,10 @@
       border: 1px solid #156ab4;
       border-radius: 6px;
       padding: 5px 10px;
+  }
+
+  .save-button{
+    margin: 5px;
   }
   
   .xblock--drag-and-drop--editor .btn:hover,
