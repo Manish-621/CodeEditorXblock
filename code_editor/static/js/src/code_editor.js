@@ -7,7 +7,7 @@ function CodeEditorXBlock(runtime, element, init_args){
         var runCodeUrl=runtime.handlerUrl(element,'run_snippet');
 
         $('.unit-iframe-wrapper').css({
-            width : $(window).width()
+            width : $('.sequence').width()
         })
         $('#toggle_fullscreen').on('click', function(){
             // if already full screen; exit
@@ -16,7 +16,7 @@ function CodeEditorXBlock(runtime, element, init_args){
             //   //document.exitFullscreen();
             // } else {
               //$('.unit-iframe-wrapper').get(0).requestFullscreen();
-              $('.editor-wrapper').get(0).requestFullscreen();
+              $('.unit-iframe-wrapper').get(0).requestFullscreen();
             // }
         });
 
