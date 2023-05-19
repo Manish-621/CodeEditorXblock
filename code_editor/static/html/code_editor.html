@@ -1,6 +1,7 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
   integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <div class="code-editor row " style="border: solid #101111;">
   <div class="col-5 px-0  question-frame"  >
      <label class="h4 mx-3" style="width: inherit; height: 100%;"> 
@@ -9,35 +10,37 @@
         </div>
     </label>
   </div>
-  <div class="col px-0 mx-0">
+  <div class="editor-wrapper col px-0 mx-0">
   <div class="editor-frame" style="height: inherit;">
     <div class="code-container pb-0" style="width:inherit !important; height:800px !important; font-family: 'Inter';">
         <div class="code-body">
             <div class="code-editor-con">
                 <form class="code-editor-form mt-6">
                     <div class="form-group col-md-12 flex-row d-flex justify-content-end" style="margin-bottom: 5px;">
-                        <div class="col-10 d-flex flex-row justify-content-end">
+                        <div class="col-10 d-flex px-0 flex-row justify-content-end">
                             <div class="col-md-3 mx-0 px-0 my-3">
                                 <label style="margin-right: 5px;font-size: 14px; font-family: 'Inter'; color:rgb(226, 218, 218) ;"> </label>
-                                <select id="languageTypeChange" class="editorLable" name="language" style="width:8Vw; color:rgb(226, 218, 218);">
-                                    <option id="backend" style="" value ="BACKEND">Back End</option>
-                                    <option id="database" style="" value ="DATABASE">Database</option>
+                                <select id="languageTypeChange" class="editorLable" hidden name="language" style="width:8Vw; color:rgb(226, 218, 218);">
+                                    <option id="backend" style="" value ="{{ self.language_type }}">Back End</option>
+                                    <!-- <option id="database" style="" value ="DATABASE">Database</option>
                                     <option id="devops" style="" value ="DEVOPS">DevOps</option>
-                                    <option id="frontend" style="" value ="FRONTEND">Front End</option>
+                                    <option id="frontend" style="" value ="FRONTEND">Front End</option> -->
                                 </select>
                             </div>
-                            <div class="col-md-3 mx-0 px-0 my-3">
-                                <label style="margin-right: 5px;font-size: 14px; color:rgb(226, 218, 218) ;"></label>
+                            <div class="col-md-5 mx-0 px-0 my-3">
+                                <label style="margin-right: 5px;font-size: 14px; color:rgb(226, 218, 218) ;">Choose a Language:</label>
                                 <select id="languageChange" class="editorLable" name="language" style="width:8Vw; color:rgb(226, 218, 218);">
                                         <!-- <option style=" color:#3277a8e8;" value =""></option>              -->
                                 </select>
                             </div>
-                            <div class="col-md-3 mx-0 my-3">
+                            <div class="col-md-1 mx-0 my-3 toggle-switch">
                                 <!--<label style="margin-right: 5px;font-size: 14px; color:rgb(226, 218, 218);"></label>-->
-                                <select id="themeChange" class="editorLable" name="editorTheme" style="width:8Vw; color:rgb(226, 218, 218);">
+                                <input type="checkbox" id="toggle-checkbox">
+                                <label for="toggle-checkbox"></label>
+                                <!-- <select id="themeChange" class="editorLable dropdown-menu" name="editorTheme" style="width:8Vw; color:rgb(226, 218, 218);">
                                     <option value ="monokai">Dark Mode</option>
                                     <option value ="sqlserver">Light Mode</option>
-                                </select>
+                                </select> -->
                             </div>
                             <!--<div class="col-md-3">
                                 <label style="margin-right: 5px;font-size: 14px;">Font Size: </label>
@@ -47,6 +50,9 @@
                                     <option value ="18">Large</option>
                                 </select>
                             </div>-->
+                            <div class="ml-2 px-2 my-3">
+                                <a href="#" class="expand" id="toggle_fullscreen" title="Expand" style="color: #0f3174; font-size: large;"><i class="fa fa-arrows-alt" aria-hidden="true"></i></a>
+                            </div>
                         </div>    
                     </div>
                     <!-- <div data-intro="Timer" data-position="left">

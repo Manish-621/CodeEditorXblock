@@ -5,6 +5,30 @@ function CodeEditorXBlock(runtime, element, init_args){
         var getHandlerUrl=runtime.handlerUrl(element,'get_snippet_code');
         var getCodeUrl=runtime.handlerUrl(element,'get_code_by_questionID');
         var runCodeUrl=runtime.handlerUrl(element,'run_snippet');
+
+        
+        $(document).ready(function() {
+            $('.unit-iframe-wrapper').css({
+                width : $(window).width()
+            })
+        });
+        $('#toggle_fullscreen').on('click', function(){
+            // if already full screen; exit
+            // else go fullscreen
+            // if (document.fullscreenElement) {
+            //   //document.exitFullscreen();
+            // } else {
+              //$('.unit-iframe-wrapper').get(0).requestFullscreen();
+              $('.editor-wrapper').get(0).requestFullscreen();
+            // }
+        });
+
+        // $(document).ready(function() {
+        //     $('.toggle-switch input[type="checkbox"]').change(function() {
+        //       $(this).siblings('.dropdown-menu').toggle();
+        //       console.log($('#themeChange').val())
+        //     });
+        //   });
         
         let Code_Editor = new function(){
             const ACE_URL1 = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.16.0/ace.js",
@@ -85,8 +109,28 @@ function CodeEditorXBlock(runtime, element, init_args){
                 _init : function(){
                     _Editor_Activity.editor = ace.edit("editor");
                     _Editor_Activity._set_Editor();
-                    $('#themeChange' ).on('change', function() {
+                    $('#toggle-checkbox' ).on('change', function() {
+                        this.value=(this.value=='monokai'|| this.value=='on' )?'sqlserver':'monokai';
                         _Editor_Activity.editor.setTheme("ace/theme/"+this.value);
+                        var col=(this.value=='monokai')?'rgb(39, 38, 38)':'#CECECB';
+                        var colopp=(this.value=='monokai')?'#fff':'#101111';
+                        $(".code-editor-con").css({
+                            background: col, 
+                        })
+                        $(".form-group label").css({
+                            color:colopp
+                        })
+                        $(".editorLable").css({
+                            background: col,
+                            color: colopp
+                        })
+                        $(".output-terminal").css({
+                            background: col,
+                            color: colopp
+                        })
+
+                       
+                        
                     });
 
                     $('#languageTypeChange' ).on('change', function(){

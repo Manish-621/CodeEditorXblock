@@ -66,6 +66,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
     language_type=String(
         display_name=("Problem Area"),
         help="Backend/Frontend/Database/Docker",
+        default="BACKEND",
         scope=Scope.settings,
         values=[
                { "display_name":"Backend", "value":"BACKEND" },
@@ -75,7 +76,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
                ],
         enforce_type= True,
     )
-    max_score=Integer(
+    maximum_score=Integer(
         display_name=("Max Score"),
         help=("Defines the maximum score for the question"),
         scope=Scope.settings,
@@ -175,7 +176,13 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
       values= [(tag.name, tag.value) for tag in CodingLanguagesType],
     )
 
-    
+    def max_score(self):  # pylint: disable=no-self-use
+        """
+        Return the problem's max score, which for DnDv2 always equals 1.
+        Required by the grading system in the LMS.
+        """
+        return self.maximum_score
+
     def request_save(self, question_id):
         results = self.objects.filter(question_id=question_id,is_submit=True)
         if results.exists():
@@ -246,7 +253,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             'BACKEND':backend,
             'DATABASE':database,
             'DEVOPS':devops,
-            'FRONTEND':frontend
+            'FRONTEND':frontend,
         }
         cont= {
             'fields':self.fields,
@@ -332,10 +339,9 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         # if showanswer == SHOWANSWER.DEFAULT:
         #     del self.showanswer
         self.has_score = submissions['has_score']
-        self.max_score = int(submissions['max_score'])
+        self.maximum_score = submissions['maximum_score']
         self.enable_autocomplete = submissions['enable_autocomplete']
         self.evaluation_parameters = submissions['evaluation_parameters']
-        s
         return {
             'result': 'success',
         }    
