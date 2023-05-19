@@ -256,7 +256,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             'static/js/vendor/virtual-dom-1.3.0.min.js',
             'static/js/src/code_editor.js',
         ]
-        html = loader.render_django_template("templates/code_editor.html",cont)
+        html = loader.render_django_template("./static/html/code_editor.html",cont)
         frag = Fragment(html)
         css = loader.render_django_template('static/css/code_editor.css')
         frag.add_css(css)
@@ -289,7 +289,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             'urls': css_urls
         })
         fragment = Fragment()
-        fragment.add_content(loader.render_django_template('templates/code_editor_view.html',context))
+        fragment.add_content(loader.render_django_template('/static/html/code_editor_view.html',context))
         #fragment.add_content(loader.render_django_template('/static/html/code_editor_view.html',context=context))
         css = loader.render_django_template('static/css/code_editor_view.css')
         js_urls = [
