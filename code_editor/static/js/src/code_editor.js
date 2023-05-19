@@ -6,12 +6,9 @@ function CodeEditorXBlock(runtime, element, init_args){
         var getCodeUrl=runtime.handlerUrl(element,'get_code_by_questionID');
         var runCodeUrl=runtime.handlerUrl(element,'run_snippet');
 
-        
-        $(document).ready(function() {
-            $('.unit-iframe-wrapper').css({
-                width : $(window).width()
-            })
-        });
+        $('.unit-iframe-wrapper').css({
+            width : $(window).width()
+        })
         $('#toggle_fullscreen').on('click', function(){
             // if already full screen; exit
             // else go fullscreen

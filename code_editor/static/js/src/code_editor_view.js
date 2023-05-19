@@ -18,14 +18,14 @@ function CodeEditorViewXBlock(runtime, element,){
             'language_type': document.querySelector('.language-type').value
         };
 
-        alert('save', {state: 'start', message: "Saving"});
+        runtime.notify('save', {state: 'start', message: gettext("Saving")});
         $.post(url, JSON.stringify(data), 'json').done(function(response) {
             if (response.result === 'success') {
-                 alert('save', {state: 'end'});
+                runtime.notify('save', {state: 'end'});
             } else {
                 var message = response.messages.join(", ");
-                    alert('error', {
-                    'title': "There was an error with your form.",
+                     runtime.notify('error', {
+                    'title': gettext("There was an error with your form."),
                     'message': message
                 });
             }
