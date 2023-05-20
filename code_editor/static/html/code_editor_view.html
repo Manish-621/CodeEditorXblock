@@ -11,7 +11,7 @@
                 <form class="feedback-form">
                     <label class="h4">
                         <span>{{ fields.question.display_name }}</span>
-                        <textarea class="question">{{ fields.question.help }} </textarea>
+                        <textarea  name="textarea_field" class="question" placeholder="{{ fields.question.help }}"> </textarea>
                     </label>
                     <label class="h4">
                         <span> {{ fields.language_type.display_name }}</span>
@@ -61,7 +61,7 @@
 
                     <label class="h4">
                         <span>{{ fields.evaluation_parameters.display_name }}</span>
-                        <textarea class="eval-parameters">{{ fields.evaluation_parameters.help }}</textarea>
+                        <textarea name="textarea_field" class="eval-parameters" placeholder="{{ fields.evaluation_parameters.help }}"></textarea>
                     </label>
                 </form>
             </div>
@@ -73,7 +73,7 @@
       <ul class="action-buttons">
        
         <li class="action-item">
-          <a href="#" class="button btn action-primary save-button">Save</a></button>
+          <a href="#" class="button btn action-primary save-button">Save</a>
         </li>
 
         <li class="action-item">
