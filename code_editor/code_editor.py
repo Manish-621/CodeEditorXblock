@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from xblock.core import XBlock
 from xblock.fields import Boolean, Dict, Float, Integer, Scope, String
-from .utils import get_code_by_snippet, save_or_update_code, run_backend_code, run_sql_query, run_backend_tests    
+from .utils import get_code_by_snippet, save_or_update_code, run_backend_code, run_sql_query, run_backend_tests, git_push    
 from .enums import CodingLanguagesType
 from django.http import JsonResponse
 import uuid
@@ -22,8 +22,10 @@ import urllib
 import ast
 import sys
 import os 
+import io
 from xblockutils.resources import ResourceLoader
 from xblockutils.studio_editable import StudioEditableXBlockMixin
+import git
 
 
 loader = ResourceLoader(__name__)  # pylint: disable=invalid-name
@@ -60,7 +62,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         display_name=("Coding Question"),
         default='Write a program to print Hello World', 
         scope=Scope.settings,
-        help="Enter the coding question",
+        help="Write a program to print Hello World",
         enforce_type=True,
     )
     language_type=String(
@@ -616,6 +618,34 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         data['snippet_id'] = save_or_update_code(language,filename, content, snippet_id if is_update == 'true' else None)
         return data
 
+    
+
+    @XBlock.json_handler
+    def student_submit(self,request,data):
+        """
+        A handler to submit the code and push to git repository
+        """
+
+        directory='/home/manish/xblock_dev/files/'
+        filename=request['name']
+        file_path=directory+filename
+        mode='w'
+        data=request['content']
+        with io.open(file_path, mode) as file:
+           file.write(data)
+        #   remote = repo.create_remote(remote_name,remote_url)
+        # branch_name = 'main'
+        # index = repo.index
+        # index.add(directory,force=True)
+        # index.commit("Initial")
+        # repo.git.branch('-M', 'main')
+        # gitrep= repo.git
+        # gitrep.push()
+        return git_push(filename,data)   
+
+    
+
+        
 
     @XBlock.json_handler
     def increment_count(self, data, suffix=''):

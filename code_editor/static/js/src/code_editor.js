@@ -5,6 +5,7 @@ function CodeEditorXBlock(runtime, element, init_args){
         var getHandlerUrl=runtime.handlerUrl(element,'get_snippet_code');
         var getCodeUrl=runtime.handlerUrl(element,'get_code_by_questionID');
         var runCodeUrl=runtime.handlerUrl(element,'run_snippet');
+        var submitCodeUrl=runtime.handlerUrl(element,'student_submit');
 
         $('.unit-iframe-wrapper').css({
             width : $('.sequence').width()
@@ -258,6 +259,36 @@ function CodeEditorXBlock(runtime, element, init_args){
                     });
                 },
 
+                _submitCode : function(url){
+                    $(this).prop('disabled', true);
+                    $('.output-terminal' ).empty();
+                    $('.output-terminal' ).html("<div>Running.....<div>")
+                    let codeinput = {
+                        name: codeArray[$("#languageChange :selected" ).val()].filename,
+                        content: _Editor_Activity.editor.getValue(),
+                        language: codeArray[$("#languageChange :selected" ).val()].language,
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: JSON.stringify(codeinput),
+                        success: function(data, status) {
+                                    $('#subBtn' ).prop('disabled', false);
+                                    var jsonRes=data;
+                                    if(!data) {
+                                        $('.output-terminal' ).html("<div>Got unexpected response<div>")
+                                    }
+                                    else{
+                                        $('.output-terminal' ).html("<div>Code Pushed and submitted<div>")
+                                    }
+                                },
+                         error: function() {
+                                    $('#runBtn' ).prop('disabled', false);
+                                    $('.output-terminal' ).html("<div>Got unexpected response<div>");
+                                },
+                    });
+                },
+
                 _previewCode : function(){
                     var doc = $('#result-Window' )[0].contentWindow.document;
                     doc.open();
@@ -327,6 +358,9 @@ function CodeEditorXBlock(runtime, element, init_args){
                 _init : function(){
                     $("#runBtn" ).click(function(){
                         _Editor_Ops._runCode(runCodeUrl);
+                    });
+                    $("#subBtn" ).click(function(){
+                        _Editor_Ops._submitCode(submitCodeUrl);
                     });
                     $("#previewBtn" ).click(function(){
                         _Editor_Ops._previewCode();

@@ -7,6 +7,7 @@ import requests
 import json
 import random
 import bleach
+import base64
 
 from bleach.css_sanitizer import CSSSanitizer
 
@@ -48,7 +49,7 @@ def save_or_update_code(language, filename, content, snippet_id) :
     headers = {
                     'Authorization': "Token d11088bc-a29d-4d49-a633-b1b1ae807064",
                     'Content-Type':'application/json'
-                }
+              }
 
     if snippet_id and len(snippet_id)>1:
         response = requests.put(url+"/"+snippet_id, json.dumps(data), headers=headers)
@@ -167,3 +168,28 @@ def run_backend_tests_judge0(filename, content, stdin, language):
         data_response['stderr'] = 'Runtime Error : Time Limit Exceeded \nPlease check for code optimizations'
     return data_response
     
+def git_push(filename,data):
+    github_url = "https://api.github.com"  # Replace with the GitHub API URL
+    access_token = "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"  # Replace with your GitHub access token
+    owner = "Manish-621"  # Replace with the owner/organization of the repository
+    repo_name = "Code-Editor-Submits"  # Replace with the name of the repository
+    file_path = "./manish.c"  # Replace with the path where you want to create the file
+    commit_message = "initial"  # Replace with your commit message
+    code_content = data  # Replace with the user input code content
+    code_content_encoded = base64.b64encode(code_content.encode("utf-8")).decode("utf-8")
+    create_file_url = f"{github_url}/repos/{owner}/{repo_name}/contents/{file_path}"  # Endpoint for creating a file
+    payload = {
+        "message": commit_message,
+        "content": code_content_encoded
+    }
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+
+    response = requests.put(create_file_url, headers=headers, json=payload)
+    if response.status_code == 201:
+        return "File created and pushed successfully."
+    else:
+        return f"Error: {response.status_code}, {response.text}"    
