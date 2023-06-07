@@ -25,7 +25,6 @@ import os
 import io
 from xblockutils.resources import ResourceLoader
 from xblockutils.studio_editable import StudioEditableXBlockMixin
-import git
 
 
 loader = ResourceLoader(__name__)  # pylint: disable=invalid-name
