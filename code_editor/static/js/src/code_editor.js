@@ -7,9 +7,13 @@ function CodeEditorXBlock(runtime, element, init_args){
         var runCodeUrl=runtime.handlerUrl(element,'run_snippet');
         var submitCodeUrl=runtime.handlerUrl(element,'student_submit');
 
-        $('.unit-iframe-wrapper').css({
-            width : $('.sequence').width()
+        // $('.unit-iframe-wrapper').css({
+        //     width : $('.sequence').width()
+        // })
+        $('.course-wrapper .course-content .xblock.xblock-student_view-vertical, .course-wrapper .course-content .xblock.xblock-public_view-vertical, .course-wrapper .courseware-results-wrapper .xblock.xblock-student_view-vertical, .course-wrapper .courseware-results-wrapper .xblock.xblock-public_view-vertical').css({
+            maxwidth : 'inherit',
         })
+
         $('#toggle_fullscreen').on('click', function(){
             // if already full screen; exit
             // else go fullscreen
@@ -17,7 +21,7 @@ function CodeEditorXBlock(runtime, element, init_args){
             //   //document.exitFullscreen();
             // } else {
               //$('.unit-iframe-wrapper').get(0).requestFullscreen();
-              $('.unit-iframe-wrapper').get(0).requestFullscreen();
+              $('.xblock').get(0).requestFullscreen();
             // }
         });
 
