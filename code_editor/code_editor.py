@@ -625,13 +625,13 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         A handler to submit the code and push to git repository
         """
 
-        directory='/home/manish/xblock_dev/files/'
+        # directory='/home/manish/xblock_dev/files/'
         filename=request['name']
         file_path=directory+filename
         mode='w'
         data=request['content']
-        with io.open(file_path, mode) as file:
-           file.write(data)
+        # with io.open(file_path, mode) as file:
+        #    file.write(data)
         #   remote = repo.create_remote(remote_name,remote_url)
         # branch_name = 'main'
         # index = repo.index
