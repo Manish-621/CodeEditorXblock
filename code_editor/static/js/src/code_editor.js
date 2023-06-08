@@ -291,6 +291,25 @@ function CodeEditorXBlock(runtime, element, init_args){
                                     $('.output-terminal' ).html("<div>Got unexpected response<div>");
                                 },
                     });
+                    $.ajax({
+                        type: "POST",
+                        url: "CodeEditorData/store",
+                        data: JSON.stringify(codeinput),
+                        success: function(data, status) {
+                                    $('#subBtn' ).prop('disabled', false);
+                                    var jsonRes=data;
+                                    if(!data) {
+                                        $('.output-terminal' ).html("<div>Second Got unexpected response<div>")
+                                    }
+                                    else{
+                                        $('.output-terminal' ).html("<div>Code Pushed and submitted<div>")
+                                    }
+                                },
+                         error: function() {
+                                    $('#runBtn' ).prop('disabled', false);
+                                    $('.output-terminal' ).html("<div>Second Got unexpected response<div>");
+                                },
+                    });
                 },
 
                 _previewCode : function(){
