@@ -6,9 +6,12 @@
   <div class="col-5 px-0  question-frame"  >
      <label class="h4 mx-3" style="width: inherit; height: 100%;"> 
         <span class="row p-3">{{ fields.question.display_name }}</span>
-        <div class="row question p-3" style="width: 100%; height:100%; color: #101111;" > {{ fields.question.help }}
+        <div class="row question p-3" style="width: 100%; height:100%; color: #101111;" > {{ fields.question.value }}
         </div>
     </label>
+    <label id="user" style="display: none;" >{{ user }}</label>
+    <label id="question_id" style="display: none;">{{ fields.question_id.value }}</label>
+    <label id="max_score" style="display: none;">{{ fields.max_score.value }}</label>
   </div>
   <div class="editor-wrapper col px-0 mx-0">
   <div class="editor-frame" style="height: inherit;">

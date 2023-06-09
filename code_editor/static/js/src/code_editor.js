@@ -272,6 +272,12 @@ function CodeEditorXBlock(runtime, element, init_args){
                         content: _Editor_Activity.editor.getValue(),
                         language: codeArray[$("#languageChange :selected" ).val()].language,
                     }
+                    let codesubmit = {
+                        user: document.querySelector('#user').innerHTML,
+                        question_id: document.querySelector("#question_id").innerHTML,
+                        content: _Editor_Activity.editor.getValue(),
+                        max_score: document.querySelector("#max_score").innerHTML,
+                    }
                     $.ajax({
                         type: "POST",
                         url: url,
@@ -294,7 +300,7 @@ function CodeEditorXBlock(runtime, element, init_args){
                     $.ajax({
                         type: "POST",
                         url: "CodeEditorData/store",
-                        data: JSON.stringify(codeinput),
+                        data: JSON.stringify(codesubmit),
                         success: function(data, status) {
                                     $('#subBtn' ).prop('disabled', false);
                                     var jsonRes=data;

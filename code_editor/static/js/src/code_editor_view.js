@@ -33,6 +33,6 @@ function CodeEditorViewXBlock(runtime, element,){
     }
 
     $('.cancel-button').on('click', function() {
-        alert('cancel', {});
+        runtime.notify('cancel', {});
     });
 }

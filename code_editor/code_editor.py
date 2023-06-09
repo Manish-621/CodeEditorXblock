@@ -259,6 +259,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         cont= {
             'fields':self.fields,
             'self':self,
+            'user': self.scope_ids.user_id,
         }
         js_urls = [
             'static/js/vendor/virtual-dom-1.3.0.min.js',
@@ -627,8 +628,8 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
 
         # directory='/home/manish/xblock_dev/files/'
         filename=request['name']
-        file_path=directory+filename
-        mode='w'
+        # file_path=directory+filename
+        # mode='w'
         data=request['content']
         # with io.open(file_path, mode) as file:
         #    file.write(data)
