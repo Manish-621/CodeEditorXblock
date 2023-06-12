@@ -259,7 +259,8 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
         cont= {
             'fields':self.fields,
             'self':self,
-            'user': self.scope_ids.user_id,
+            'user': self.runtime.user_id,
+            'question_id':self.location.course_key,
         }
         js_urls = [
             'static/js/vendor/virtual-dom-1.3.0.min.js',
