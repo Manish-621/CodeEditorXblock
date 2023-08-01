@@ -6,9 +6,10 @@
   <div class="col-5 px-0  question-frame"  >
      <label class="h4 mx-3" style="width: inherit; height: 100%;"> 
         <span class="row p-3">{{ fields.question.display_name }}</span>
-        <div class="row question p-3" style="width: 100%; height:100%; color: #101111;" > 
+        <div class="row question p-3" style="width: 100%; height:100%; color: #101111;"> 
+            <label>
            {{ self.question }}
-           {{ self.evaluation_parameters }}
+           </label>
         </div>
     </label>
     <label id="user" style="display: none;" >{{ user }}</label>
