@@ -9,12 +9,14 @@ function CodeEditorViewXBlock(runtime, element,){
    
     let submit= function(url){
         var data = {
-            'question': document.querySelector('.question').value,
+            // 'question': document.querySelector('.question').val(),
+            'question': $('.question').val(),
             'max_attempts': document.querySelector(".max-attempts").value,
             'has_score': document.querySelector(".has_score").checked,
             'enable_autocomplete': document.querySelector('.enable_autocomplete').checked,
             'maximum_score': document.querySelector('.max_score').value,
-            'evaluation_parameters': document.querySelector('#e-parameters').value,
+            // 'evaluation_parameters': document.querySelector('#e-parameters').val(),
+            'evaluation_parameters': $('#e-parameters').val(), 
             'language_type': document.querySelector('.language-type').value
         };
 
