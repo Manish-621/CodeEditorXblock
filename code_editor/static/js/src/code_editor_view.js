@@ -10,7 +10,7 @@ function CodeEditorViewXBlock(runtime, element,){
     let submit= function(url){
         var data = {
             // 'question': document.querySelector('.question').val(),
-            'question': $('.question').val(),
+            'question': $('#question').val(),
             'max_attempts': document.querySelector(".max-attempts").value,
             'has_score': document.querySelector(".has_score").checked,
             'enable_autocomplete': document.querySelector('.enable_autocomplete').checked,
