@@ -260,7 +260,7 @@ class CodeEditorXBlock(StudioEditableXBlockMixin,XBlock):
             'fields':self.fields,
             'self':self,
             'user': self.runtime.user_id,
-            'question_id':self.location.usage_id,
+            'question_id':self.location.course_key,
         }
         js_urls = [
             'static/js/vendor/virtual-dom-1.3.0.min.js',
